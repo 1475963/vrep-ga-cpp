@@ -1,12 +1,7 @@
-#include <iostream>
-
-using namespace std;
-
-extern "C" {
-  #include "extApi.h"
-}
+#include "Simulation.hh"
 
 int main() {
-  cout << "Working!" << endl;
+	auto simulation = Simulation();
+	simulation.run();
   return 0;
 }

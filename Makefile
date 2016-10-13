@@ -1,4 +1,8 @@
-CFLAGS = -I./remoteApi -I./include -DNON_MATLAB_PARSING -DMAX_EXT_API_CONNECTIONS=255
+CFLAGS = -I./remoteApi 			              \
+				 -I./include 				              \
+				 -std=c++11               \
+				 -DNON_MATLAB_PARSING             \
+				 -DMAX_EXT_API_CONNECTIONS=255
 
 OS = $(shell uname -s)
 ifeq ($(OS), Linux)
@@ -11,7 +15,8 @@ all:
 	@rm -f bin/*.*
 	@rm -f *.o
 	g++ $(CFLAGS) -c ./srcs/test.cpp -o test.o
-	gcc $(CFLAGS) -c ./remoteApi/extApi.c -o extApi.o
-	gcc $(CFLAGS) -c ./remoteApi/extApiPlatform.c -o extApiPlatform.o
+	g++ $(CFLAGS) -c ./srcs/VrepConnection.cpp -o VrepConnection.o
+	g++ $(CFLAGS) -c ./remoteApi/extApi.c -o extApi.o
+	g++ $(CFLAGS) -c ./remoteApi/extApiPlatform.c -o extApiPlatform.o
 	@mkdir -p bin
-	g++ extApi.o extApiPlatform.o test.o -o bin/test -lpthread
+	g++ extApi.o extApiPlatform.o test.o VrepConnection.o -o bin/test -lpthread
