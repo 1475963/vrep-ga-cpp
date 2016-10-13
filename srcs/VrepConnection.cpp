@@ -15,15 +15,15 @@ VrepConnection::VrepConnection(
     _communication_thread_cycle_in_ms(comm_thread_cycle_in_ms)
 {
     // etablishing connection
-    _connection = simxStart(
-        _address, _connection_port,
-        _wait_until_connected, _do_not_reconnect_once_disconnected, _time_out_in_ms,
-        _communication_thread_cycle_in_ms
-    );
+    // _connection = simxStart(
+    //     _address, _connection_port,
+    //     _wait_until_connected, _do_not_reconnect_once_disconnected, _time_out_in_ms,
+    //     _communication_thread_cycle_in_ms
+    // );
 
-    if (_connection < 0) throw;
+    // if (_connection < 0) throw;
 }
 
 VrepConnection::~VrepConnection() {
-    simxFinish(_connection);
+//    simxFinish(_connection);
 }
