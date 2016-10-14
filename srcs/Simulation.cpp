@@ -1,7 +1,7 @@
 #include "Simulation.hh"
 
 Simulation::Simulation()
-: _population(Population(maxPop))
+: _population(Population(_maxPop))
 //:  _connection(VrepConnection("127.0.0.1", 19997, 1, 1, 5000, 5))
 {}
 
@@ -19,6 +19,7 @@ int Simulation::run() {
   std::cout << "## Time spent: " << double(clock() - start) / CLOCKS_PER_SEC;
 
   simxInt ret;
+  // in constructor + throw simxInt
   simxInt clientID = simxStart("127.0.0.1", 19997, true, true, 5000, 5);
   if (clientID == -1) {
     std::cerr << "simxStart error" << std::endl;
@@ -27,7 +28,7 @@ int Simulation::run() {
   
   const Robot robot(clientID);
 
-  for (uint16_t i = 0; i < maxTries; i++) {
+  for (uint16_t i = 0; i < _maxTries; i++) {
     std::cout << "Population size: " << _population.getPopulation().size() << std::endl;
     // evaluate
     std::cout << "Global fitness: " << _population.evaluateBatch() << std::endl;

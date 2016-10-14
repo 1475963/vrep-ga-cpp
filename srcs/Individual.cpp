@@ -1,15 +1,15 @@
 #include "Individual.hh"
 
 Individual::Individual() {
-  this->initialize(_defaultMaxActions);
+  this->initialize(Robot::highestAction());
 }
 
 Individual::Individual(uint16_t maxActions) {
   this->initialize(maxActions);
 }
 
-Individual::Individual(dna_t dna) {
-  this->setDna(dna);
+Individual::Individual(const dna_t &dna) {
+  _dna = dna;
 }
 
 Individual  &Individual::initialize(uint16_t maxActions) {
@@ -41,7 +41,7 @@ fitness_t   Individual::getScore() const {
   return (_score);
 }
 
-dna_t       &Individual::getDna() {
+dna_t       Individual::getDna() const {
   return (_dna);
 }
 

@@ -5,11 +5,7 @@
 #include "types.hh"
 #include "Population.hh"
 
-const uint16_t maxPop = 200;
-const uint16_t maxTries = 200;
-
 class Simulation {
-  //VrepConnection _connection;
 
 public:
 
@@ -19,5 +15,8 @@ public:
 
 private:
   Population  _population;
+  simxInt     _clientID;
+  const static uint16_t _maxPop = 200;
+  const static uint16_t _maxTries = 200;
 
 };

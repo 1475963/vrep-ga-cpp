@@ -9,7 +9,12 @@ extern "C" {
 using namespace std;
 
 int main() {
-  auto simulation = Simulation();
-  simulation.run();
-  return 0;
+  try {
+    Simulation simulation = Simulation();
+    return (simulation.run());
+  }
+  catch (const std::exception &e) {
+    cerr << "error: " << e.what() << endl;
+    return (-1);
+  }
 }
