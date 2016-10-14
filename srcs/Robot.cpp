@@ -19,16 +19,19 @@ uint8_t Robot::_nextId = 0;
 
 /***** move_t *****/
 
-move_t::move_t(const std::string &bodyPart, const std::string &description, double intensity) :
+move_t::move_t(const simxChar *bodyPart, const std::string &description, double intensity) :
   _bodyPart(bodyPart), _description(description), _intensity(intensity)
 {}
 
 /***** Robot *****/
 
 Robot::Robot(simxInt clientID) :
-  _clientID(clientID), _id(_nextId)
-{
+  _clientID(clientID), _handlers(highestAction()), _id(_nextId) {
   ++_nextId;
+  // here we throw but it's not a problem as this will later be done in another function
+  for (int i = 0; i < highestAction(); i++)
+    if (simxGetObjectHandle(_clientID, Robot::actions.at(i)._bodyPart, &_handlers[i], simx_opmode_blocking) != 0)
+      throw "err";
   cout << "Robot " << (int)_id << " created" << endl;
 }
 
@@ -46,12 +49,10 @@ simxInt	Robot::doActions(const dna_t &dna) const {
       continue;
     }
     cout << "Robot " << (int)_id << " executing " << actions.at(action)._description << endl;
-    /*
-    ret = simxSetJointTargetPosition(_clientID, actions.at(action)._bodyPart, actions.at(action)._intensity, simx_opmode_oneshot);
+    ret = simxSetJointTargetPosition(_clientID, _handlers[action], Robot::actions.at(action)._intensity, simx_opmode_oneshot);
     if (ret != 0 && ret != 1)
       return ret;
-      */
-    sleep(5);
+    sleep(2);
   }
   return 0;
 }
