@@ -65,7 +65,7 @@ dir:			$(info $(SRCS)) $(info $(OBJS))
 $(BIN)/$(PRGRM):	$(OBJS)
 			$(CC) $(CFLAGS) -c $(VREP_DIR)/extApi.c -o $(BUILD)/extApi.o
 			$(CC) $(CFLAGS) -c $(VREP_DIR)/extApiPlatform.c -o $(BUILD)/extApiPlatform.o
-			$(CXX) $(BUILD)/extApi.o $(BUILD)/extApiPlatform.o $(OBJS) -o $@ -lpthread
+			$(CXX) $(BUILD)/extApi.o $(BUILD)/extApiPlatform.o $(OBJS) -o $@ $(LDFLAGS)
 
 $(OBJS): $(BUILD)/%.o : $(SRCS_DIR)/%.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
