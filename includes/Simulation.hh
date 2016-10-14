@@ -17,7 +17,7 @@ private:
   Population            _population;
   simxInt               _clientID;
   const Robot           _robot;
-  const static uint16_t _maxPop = 200;
-  const static uint16_t _maxTries = 200;
+  const static uint16_t _maxPop = 20;
+  const static uint16_t _maxTries = 20;
 
 };

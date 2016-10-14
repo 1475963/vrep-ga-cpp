@@ -34,6 +34,7 @@ int Simulation::run() {
     // elites
     // crossover
     // mutation
+    _population.termDisplay();
 
     // for each individual start a simulation and execute the dna on vrep
     for (uint16_t j = 0; j < _population.getPopulation().size(); j++) {
@@ -43,8 +44,9 @@ int Simulation::run() {
         return ret;
       }
 
+      _population.getPopulation()[j].termDisplay();
       // do action in vrep
-      ret = _robot.doActions(_population.getPopulation()[i].getDna());
+      ret = _robot.doActions(_population.getPopulation()[j].getDna());
       if (ret != 0) {
         std::cerr << "Robot::doActions error: " << ret << std::endl;
         return ret;
@@ -58,7 +60,6 @@ int Simulation::run() {
     }
 
     // logs ?
-    _population.termDisplay();
   }
   std::cout << "## END" << std::endl;
   std::cout << "## Time spent: " << double(clock() - start) / CLOCKS_PER_SEC;

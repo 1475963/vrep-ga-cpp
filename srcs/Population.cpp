@@ -37,6 +37,6 @@ void            Population::termDisplay() {
   }
 }
 
-population_t    &Population::getPopulation() {
+population_t    Population::getPopulation() {
   return (_population);
 }
