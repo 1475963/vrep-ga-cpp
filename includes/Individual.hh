@@ -10,4 +10,6 @@ struct Individual {
   Individual();
   Individual(dna_t);
   ~Individual();
+
+  Individual *mate(Individual *);
 };

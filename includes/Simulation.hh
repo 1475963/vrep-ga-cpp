@@ -20,4 +20,6 @@ private:
   double evaluateIndividual(Individual);
   double evaluate(Population);
 
+	void breedingSeason();
+	couple_t makeCouple(fitness_t);
 };

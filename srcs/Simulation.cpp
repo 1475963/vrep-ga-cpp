@@ -38,7 +38,7 @@ double  Simulation::evaluate(Population population) {
  * crossover
  * mutation
  */
-void	Simulation::run() {
+void  Simulation::run() {
   Population *population = generatePopulation(200);
 
   for (auto i = 0; i < population->size(); i++) {
@@ -47,4 +47,30 @@ void	Simulation::run() {
       std::cout << "Item N°" << i << ", action N°" << a << ": " << dna[a] << std::endl;
     }
   }
+}
+
+void
+Simulation::breedingSeason() {
+  // suming the weights for a weighted random
+  // weigthsSum := _population.reduce { individual.score }
+
+  // repeat as many time as needed to ensure constant population size
+  // _population.length.times
+  //    couple := makeCouple()
+  //    child := couple.mate()
+  //    childrend << child
+}
+
+couple_t
+Simulation::makeCouple(fitness_t weigthsSum) {
+  // saving the weightsSum
+  // weightsSumCopy := weightsSum
+
+  // lefftMate := iterating over the individuals, reducing the weightsSumCopy until it becomes negative: pick that one
+  // reset weightsSumCopy
+  // rightMate := iterating over the individuals, reducing the weightsSumCopy until it becomes negative: pick that one
+
+  // ensure they aren't the same
+  // couple := pair(leftMate, rightMate)
+  // return couple
 }
