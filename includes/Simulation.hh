@@ -15,7 +15,7 @@ public:
 
   Simulation();
   ~Simulation();
-  void run();
+  int run();
 
 private:
   Population  _population;
