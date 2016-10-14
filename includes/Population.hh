@@ -15,7 +15,7 @@ public:
     population_t    &initialize(uint16_t maxPop);
     fitness_t       evaluateBatch();
     void            termDisplay();
-    population_t    getPopulation();
+    population_t    getPopulation() const;
 
 private:
     static const uint16_t   _defaultMaxPop = 50;
