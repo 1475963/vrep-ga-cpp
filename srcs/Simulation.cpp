@@ -6,31 +6,30 @@ Simulation::Simulation()
 
 Simulation::~Simulation()
 {}
-/*
 
-double  Simulation::evaluateIndividual(Individual individual) {
-  return (0);
-}
-
-double  Simulation::evaluate(Population population) {
-  return (0);
-}
-*/
 /**
- * evaluate
- * selection
- * elites
- * crossover
- * mutation
+ *  Use a clock object ?
+ *  Individual length and value limits are hardcoded :(
  */
 void	Simulation::run() {
-  Population _population = Population();
+  Population _population = Population(maxPop);
+  clock_t start = clock();
 
-  std::cout << _population.getPopulation().size() << std::endl;
-  _population.termDisplay();
+  std::cout << "## START" << std::endl;
+  std::cout << "## Time spent: " << double(clock() - start) / CLOCKS_PER_SEC;
 
-  _population.initialize(30);
+  for (uint16_t i = 0; i < maxTries; i++) {
+    std::cout << "Population size: " << _population.getPopulation().size() << std::endl;
+    // evaluate
+    std::cout << "Global fitness: " << _population.evaluateBatch() << std::endl;
+    // selection
+    // elites
+    // crossover
+    // mutation
 
-  std::cout << _population.getPopulation().size() << std::endl;
-  _population.termDisplay();
+    // logs ?
+    _population.termDisplay();
+  }
+  std::cout << "## END" << std::endl;
+  std::cout << "## Time spent: " << double(clock() - start) / CLOCKS_PER_SEC;
 }

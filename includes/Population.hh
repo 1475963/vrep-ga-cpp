@@ -11,6 +11,7 @@ public:
     Population();
     Population(uint16_t);
     population_t    &initialize(uint16_t);
+    fitness_t       evaluateBatch();
     void            termDisplay();
     population_t    &getPopulation();
 

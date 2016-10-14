@@ -25,14 +25,16 @@ Individual  &Individual::initialize(uint16_t maxActions) {
 fitness_t   Individual::evaluate() {
   RandomGenerator &rg = RandomGenerator::getInstance();
 
-  this->setScore(rg.d_between(0, 1));
-  return (this->getScore());
+  _score = rg.d_between(0, 1);
+  return (_score);
 }
 
 void        Individual::termDisplay() {
-  for (uint16_t i = 0; i < this->getDna().size(); i++) {
-    std::cout << static_cast<int>(this->getDna()[i]);
+  std::cout << "Fitness: " << _score << ", dna: ";
+  for (uint16_t i = 0; i < _dna.size(); i++) {
+    std::cout << static_cast<int>(_dna[i]);
   }
+  std::cout << std::endl;
 }
 
 fitness_t   Individual::getScore() const {
