@@ -1,14 +1,18 @@
 #include "Individual.hh"
 
 Individual::Individual() {
-    this->dna = dna_t();
-    this->score = 0;
+  _dna = dna_t();
+  _score = 0;
 }
 
-Individual::Individual(dna_t dna) {
-    this->dna = dna;
+Individual::Individual(const dna_t &dna) {
+  _dna = dna;
 }
 
-Individual::~Individual() {
+void Individual::mutate() {
+  RandomGenerator &rg = RandomGenerator::getInstance();
 
+  for (unsigned int i = 0; i < _dna.size(); i++)
+    if (rg.i_between(0, 100) < _mutationRate)
+      _dna[i] = rg.i_between(0, Robot::highestAction());
 }

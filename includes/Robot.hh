@@ -25,7 +25,11 @@ typedef std::vector<move_t > move_list_t;
 class Robot {
 public:
   Robot(simxInt clientID);
-  static inline action_t highestAction();
+
+  static inline action_t highestAction() {
+    return actions.size();
+  }
+
   simxInt doActions(const dna_t &dna) const;
 
 private:

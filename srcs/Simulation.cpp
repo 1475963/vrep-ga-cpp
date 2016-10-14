@@ -14,7 +14,7 @@ Population  *Simulation::generatePopulation(uint16_t maxPop) {
     Individual *individual = new Individual();
 
     for (auto a = 0; a < RandomGenerator::getInstance().i_between(0, 100); a++) {
-      individual->dna.push_back(RandomGenerator::getInstance().i_between(0, 10));
+      individual->_dna.push_back(RandomGenerator::getInstance().i_between(0, 10));
     }
 
     pop->push_back(individual);
@@ -24,10 +24,12 @@ Population  *Simulation::generatePopulation(uint16_t maxPop) {
 }
 
 double  Simulation::evaluateIndividual(Individual individual) {
+  (void)individual;
   return (0);
 }
 
 double  Simulation::evaluate(Population population) {
+  (void)population;
   return (0);
 }
 
@@ -41,9 +43,9 @@ double  Simulation::evaluate(Population population) {
 void	Simulation::run() {
   Population *population = generatePopulation(200);
 
-  for (auto i = 0; i < population->size(); i++) {
-    dna_t dna = population->at(i)->dna;
-    for (auto a = 0; a < dna.size(); a++) {
+  for (unsigned int i = 0; i < population->size(); i++) {
+    dna_t dna = population->at(i)->_dna;
+    for (unsigned a = 0; a < dna.size(); a++) {
       std::cout << "Item N°" << i << ", action N°" << a << ": " << dna[a] << std::endl;
     }
   }
