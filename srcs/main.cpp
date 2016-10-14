@@ -3,26 +3,22 @@
 #include "Simulation.hh"
 #include "Robot.hh"
 
-#include "extApi.h"
+extern "C" {
+  #include "extApi.h"
+}
+
 
 using namespace std;
 
 int main() {
   // auto simulation = Simulation();
   // simulation.run();
-
   simxInt ret;
   simxInt clientID = simxStart("127.0.0.1", 19997, true, true, 5000, 5);
 
   if (clientID == -1) {
     cerr << "simxStart error" << endl;
     return -1;
-  }
-
-  ret = simxStart(clientID, simx_opmode_oneshot);
-  if (ret != 0) {
-    cerr << "simxStart error: " << ret << endl;
-    return ret;
   }
 
   ret = simxStartSimulation(clientID, simx_opmode_oneshot);
@@ -47,6 +43,5 @@ int main() {
     cerr << "simxStopSimulation error: " << ret << endl;
     return ret;
   }
-
   return 0;
 }

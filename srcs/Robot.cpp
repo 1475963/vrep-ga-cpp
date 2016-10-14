@@ -37,17 +37,20 @@ action_t	Robot::highestAction() {
 }
 
 simxInt	Robot::doActions(const dna_t &dna) const {
-  simxInt ret;
+  simxInt ret = 1;
 
+  (void)ret;
   for (const auto &action : dna) {
     if (action > highestAction()) {
       cerr << "Robot " << (int)_id << " can't execute " << (int)action << ": It does not exists!" << endl;
       continue;
     }
     cout << "Robot " << (int)_id << " executing " << actions.at(action)._description << endl;
+    /*
     ret = simxSetJointTargetPosition(_clientID, actions.at(action)._bodyPart, actions.at(action)._intensity, simx_opmode_oneshot);
     if (ret != 0 && ret != 1)
       return ret;
+      */
     sleep(5);
   }
   return 0;

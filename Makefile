@@ -20,8 +20,8 @@ CXXFLAGS	+= -fmax-errors=4
 ##
 ## Includes
 ##
-CFLAGS		+= -I$(VREP_DIR) -I./dependencies/includes/
-CXXFLAGS	+= -I./includes/ -I$(VREP_DIR) -I./dependencies/includes
+CFLAGS		= -I$(VREP_DIR) -I./dependencies/includes/
+CXXFLAGS	+= -I./includes/ -I$(VREP_DIR) -I./dependencies/includes/
 
 ##
 ## Libraries
@@ -37,14 +37,17 @@ CXXFLAGS += -std=c++11
 ## Variables
 ##
 CFLAGS += -DNON_MATLAB_PARSING -DMAX_EXT_API_CONNECTIONS=255
+CXXFLAGS += -DNON_MATLAB_PARSING -DMAX_EXT_API_CONNECTIONS=255
 
 ##
 ## OSes
 ##
 OS = $(shell uname -s)
 ifeq ($(OS), Linux)
+    CFLAGS += -D__linux
     CXXFLAGS += -D__linux
 else
+    CFLAGS += -D__linux
     CXXFLAGS += -D__APPLE__
 endif
 
@@ -57,15 +60,17 @@ OBJS	= $(patsubst $(SRCS_DIR)/%.cpp,$(BUILD)/%.o,$(SRCS))
 ##
 ## Compilation
 ##
-all:			dir $(BIN)/$(PRGRM)
+all:			dir VREP $(BIN)/$(PRGRM)
 
-dir:			$(info $(SRCS)) $(info $(OBJS))
+dir:
 			$(MKDIR) $(BIN) $(BUILD)
 
 $(BIN)/$(PRGRM):	$(OBJS)
-			$(CC) $(CFLAGS) -c $(VREP_DIR)/extApi.c -o $(BUILD)/extApi.o
-			$(CC) $(CFLAGS) -c $(VREP_DIR)/extApiPlatform.c -o $(BUILD)/extApiPlatform.o
-			$(CXX) $(BUILD)/extApi.o $(BUILD)/extApiPlatform.o $(OBJS) -o $@ $(LDFLAGS)
+			$(CXX) $(CXXFLAGS) $(BUILD)/extApi.o $(BUILD)/extApiPlatform.o $(OBJS) -o $@ $(LDFLAGS)
+
+VREP:
+		$(CC) $(CFLAGS) -c $(VREP_DIR)/extApi.c -o $(BUILD)/extApi.o $(LDFLAGS)
+		$(CC) $(CFLAGS) -c $(VREP_DIR)/extApiPlatform.c -o $(BUILD)/extApiPlatform.o $(LDFLAGS)
 
 $(OBJS): $(BUILD)/%.o : $(SRCS_DIR)/%.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
@@ -88,4 +93,4 @@ re:	fclean all
 ##
 ## Avoid rules problems
 ##
-.PHONY: all dir clean fclean re
+.PHONY: all dir clean fclean re VREP

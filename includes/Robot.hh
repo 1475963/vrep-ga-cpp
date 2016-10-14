@@ -5,7 +5,9 @@
 #include <iostream> // cout / cerr
 #include <unistd.h> // sleep
 
-#include "extApi.h"
+extern "C" {
+  #include "extApi.h"
+}
 
 #include "types.hh"
 
