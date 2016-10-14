@@ -3,6 +3,7 @@
 #include <random>
 #include <cfloat>
 #include <algorithm>
+#include <functional>
 
 class RandomGenerator {
 public:

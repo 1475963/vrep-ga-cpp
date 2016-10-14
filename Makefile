@@ -21,7 +21,7 @@ CXXFLAGS	+= -fmax-errors=4
 ## Includes
 ##
 CFLAGS		= -I$(VREP_DIR) -I./dependencies/includes/
-CXXFLAGS	+= -I./includes/ -I$(VREP_DIR) -I./dependencies/includes/
+CXXFLAGS	+= -I./includes/ -I$(VREP_DIR) -I./dependencies/includes/ -I./srcs/
 
 ##
 ## Libraries
