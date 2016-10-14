@@ -13,8 +13,8 @@ int main() {
     Simulation simulation = Simulation();
     return (simulation.run());
   }
-  catch (const std::exception &e) {
-    cerr << "error: " << e.what() << endl;
+  catch (const char *e) {
+    cerr << "error: " << e << endl;
     return (-1);
   }
 }

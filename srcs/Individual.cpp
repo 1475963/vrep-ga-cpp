@@ -49,7 +49,7 @@ void        Individual::setScore(fitness_t fitness) {
   _score = fitness;
 }
 
-void        Individual::setDna(dna_t dna) {
+void        Individual::setDna(const dna_t &dna) {
   _dna = dna;
 }
 

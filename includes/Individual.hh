@@ -19,7 +19,7 @@ public:
   fitness_t   getScore() const;
   dna_t       getDna() const;
   void        setScore(fitness_t fitness);
-  void        setDna(dna_t dna);
+  void        setDna(const dna_t &dna);
 
 private:
   static const uint8_t  _mutationRate = 5;

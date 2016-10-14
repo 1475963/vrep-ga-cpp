@@ -14,8 +14,9 @@ public:
   int run();
 
 private:
-  Population  _population;
-  simxInt     _clientID;
+  Population            _population;
+  simxInt               _clientID;
+  const Robot           _robot;
   const static uint16_t _maxPop = 200;
   const static uint16_t _maxTries = 200;
 
