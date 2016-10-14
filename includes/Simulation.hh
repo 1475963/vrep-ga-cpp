@@ -2,8 +2,10 @@
 
 #include "VrepConnection.hh"
 #include "types.hh"
-#include "Individual.hh"
-#include "RandomGenerator.hpp"
+#include "Population.hh"
+
+const uint16_t maxPop = 200;
+const uint16_t maxTries = 200;
 
 class Simulation {
   //VrepConnection _connection;
@@ -15,9 +17,6 @@ public:
   void run();
 
 private:
-
-  Population *generatePopulation(uint16_t);
-  double evaluateIndividual(Individual);
-  double evaluate(Population);
+  Population  _population;
 
 };
