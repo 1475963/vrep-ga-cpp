@@ -1,25 +1,25 @@
 #include "Individual.hh"
 
 Individual::Individual() {
-  this->initialize(Robot::highestAction());
+  this->initialize(_defaultMaxLength);
 }
 
-Individual::Individual(uint16_t maxActions) {
-  this->initialize(maxActions);
+Individual::Individual(uint16_t length) {
+  this->initialize(length);
 }
 
 Individual::Individual(const dna_t &dna) {
   _dna = dna;
 }
 
-Individual  &Individual::initialize(uint16_t maxActions) {
+void  Individual::initialize(uint16_t length) {
   RandomGenerator &rg = RandomGenerator::getInstance();
 
-  for (uint16_t i = 0; i < maxActions; i++) {
-    _dna.push_back(rg.i_between(0, 9));
-  }
+  _dna.clear();
 
-  return (*this);
+  for (uint16_t i = 0; i < length; i++) {
+    _dna.push_back(rg.i_between(0, Robot::highestAction()));
+  }
 }
 
 fitness_t   Individual::evaluate() {
@@ -29,7 +29,7 @@ fitness_t   Individual::evaluate() {
   return (_score);
 }
 
-void        Individual::termDisplay() {
+void        Individual::termDisplay() const {
   std::cout << "Fitness: " << _score << ", dna: ";
   for (uint16_t i = 0; i < _dna.size(); i++) {
     std::cout << static_cast<int>(_dna[i]);

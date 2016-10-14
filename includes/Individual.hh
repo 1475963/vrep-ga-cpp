@@ -10,12 +10,12 @@ class Individual {
 
 public:
   Individual();
-  Individual(uint16_t maxActions);
+  Individual(uint16_t length);
   Individual(const dna_t &dna);
-  Individual  &initialize(uint16_t maxActions);
+  void        initialize(uint16_t length);
   fitness_t   evaluate();
   void        mutate();
-  void        termDisplay();
+  void        termDisplay() const;
   fitness_t   getScore() const;
   dna_t       getDna() const;
   void        setScore(fitness_t fitness);
@@ -23,6 +23,7 @@ public:
 
 private:
   static const uint8_t  _mutationRate = 5;
+  static const uint16_t _defaultMaxLength = 10;
   dna_t                 _dna;
   fitness_t             _score = 0;
 };

@@ -12,9 +12,9 @@ class Population {
 public:
     Population();
     Population(uint16_t maxPop);
-    population_t    &initialize(uint16_t maxPop);
+    void            initialize(uint16_t maxPop);
     fitness_t       evaluateBatch();
-    void            termDisplay();
+    void            termDisplay() const;
     population_t    getPopulation() const;
 
 private:

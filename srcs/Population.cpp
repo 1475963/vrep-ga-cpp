@@ -8,7 +8,7 @@ Population::Population(uint16_t maxPop) {
   this->initialize(maxPop);
 }
 
-population_t    &Population::initialize(uint16_t maxPop) {
+void  Population::initialize(uint16_t maxPop) {
   RandomGenerator &rg = RandomGenerator::getInstance();
 
   _population.clear();
@@ -16,8 +16,6 @@ population_t    &Population::initialize(uint16_t maxPop) {
   for (uint16_t i = 0; i < maxPop; i++) {
     _population.push_back(Individual(rg.i_between(1, 10)));
   }
-
-  return (_population);
 }
 
 fitness_t       Population::evaluateBatch() {
@@ -31,12 +29,12 @@ fitness_t       Population::evaluateBatch() {
   return (globalFitness / (_population.size() > 0 ? _population.size() : 1));
 }
 
-void            Population::termDisplay() {
+void            Population::termDisplay() const {
   for (uint16_t i = 0; i < _population.size(); i++) {
     _population[i].termDisplay();
   }
 }
 
-population_t    Population::getPopulation() {
+population_t    Population::getPopulation() const {
   return (_population);
 }
