@@ -1,21 +1,29 @@
 #pragma once
 
 #include <cstdlib>
-#include <cstdint>
-
+#include <iostream>
 #include "types.hh"
 #include "RandomGenerator.hpp"
 #include "Robot.hh"
 
-struct Individual {
+class Individual {
+
 public:
-  dna_t _dna;
-  fitness_t _score;
-
   Individual();
-  Individual(const dna_t &_dna);
+  Individual(uint16_t length);
+  Individual(const dna_t &dna);
+  void        initialize(uint16_t length);
+  fitness_t   evaluate();
+  void        mutate();
+  void        termDisplay() const;
+  fitness_t   getScore() const;
+  dna_t       getDna() const;
+  void        setScore(fitness_t fitness);
+  void        setDna(const dna_t &dna);
 
-  void mutate();
 private:
-  static const uint8_t _mutationRate = 5;
+  static const uint8_t  _mutationRate = 5;
+  static const uint16_t _defaultMaxLength = 10;
+  dna_t                 _dna;
+  fitness_t             _score = 0;
 };

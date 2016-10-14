@@ -27,7 +27,7 @@ public:
   Robot(simxInt clientID);
 
   static inline action_t highestAction() {
-    return actions.size();
+    return actions.size() - 1;
   }
 
   simxInt doActions(const dna_t &dna) const;
