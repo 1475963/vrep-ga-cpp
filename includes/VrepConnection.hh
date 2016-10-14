@@ -1,6 +1,8 @@
 #pragma once
 
-#include "extApi.h"
+extern "C" {
+  #include "extApi.h"
+}
 #include "Robot.hh"
 
 class VrepConnection
