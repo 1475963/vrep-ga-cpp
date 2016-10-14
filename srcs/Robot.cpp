@@ -2,29 +2,45 @@
 
 using namespace std;
 
+// list of possible moves
 const move_list_t Robot::actions = {
-  {"LeftWheelJoint", "Move left wheel forward", 1},
-  {"LeftWheelJoint", "Move left wheel backward", -1},
-  {"RightWheelJoint", "Move right wheel forward", 1},
-  {"RightWheelJoint", "Move right wheel backward", -1},
-  {"ShoulderMotor", "Move shoulder forward", 1},
-  {"ShoulderMotor", "Move shoulder backward", -1},
-  {"ElbowMotor", "Move elbow forward", 1},
-  {"ElbowMotor", "Move elbow backward", -1},
-  {"WristMotor", "Move wrist forward", 1},
-  {"WristMotor", "Move wrist backward", -1}
+  {"LeftWheelJoint",	"Move left wheel forward",	1},
+  {"LeftWheelJoint",	"Move left wheel backward",	-1},
+  {"RightWheelJoint",	"Move right wheel forward",	1},
+  {"RightWheelJoint",	"Move right wheel backward",	-1},
+  {"ShoulderMotor",	"Move shoulder forward",	1},
+  {"ShoulderMotor",	"Move shoulder backward",	-1},
+  {"ElbowMotor",	"Move elbow forward",		1},
+  {"ElbowMotor",	"Move elbow backward",		-1},
+  {"WristMotor",	"Move wrist forward",		1},
+  {"WristMotor",	"Move wrist backward",		-1}
 };
 
+// id of the next robot created
 uint8_t Robot::_nextId = 0;
 
 /***** move_t *****/
 
+/*
+** movet_t constructor, describe a movement
+**
+** @param bodyPart: Joint on which to apply the move
+** @param description: move description
+** @param intensity: move intensity, that is to say it's value
+*/
 move_t::move_t(const simxChar *bodyPart, const std::string &description, double intensity) :
-  _bodyPart(bodyPart), _description(description), _intensity(intensity)
-{}
+  _bodyPart(bodyPart), _description(description), _intensity(intensity) {
+}
 
 /***** Robot *****/
 
+/*
+** Robot constructor - initialise its parameters and handler
+** handler initialisation will then be moved into a load() or reload() function
+** clientId can also be a static variable in the simulation instead of a paramet
+**
+** @param clientID: client on which to apply moves
+*/
 Robot::Robot(simxInt clientID) :
   _clientID(clientID), _handlers(highestAction()), _id(_nextId) {
   ++_nextId;
@@ -35,14 +51,15 @@ Robot::Robot(simxInt clientID) :
   cout << "Robot " << (int)_id << " created" << endl;
 }
 
-action_t	Robot::highestAction() {
-  return actions.size();
-}
+/*
+** Execute a serie of action encoded in a DNA sequence
+**
+** @param dna: DNA sequence in which moves are encoded
+** @return: an error or success code as given by V-REP
+*/
+simxInt		Robot::doActions(const dna_t &dna) const {
+  simxInt	ret;
 
-simxInt	Robot::doActions(const dna_t &dna) const {
-  simxInt ret = 1;
-
-  (void)ret;
   for (const auto &action : dna) {
     if (action > highestAction()) {
       cerr << "Robot " << (int)_id << " can't execute " << (int)action << ": It does not exists!" << endl;

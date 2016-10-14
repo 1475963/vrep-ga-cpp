@@ -9,8 +9,9 @@ extern "C" {
 using namespace std;
 
 int main() {
-  // auto simulation = Simulation();
-  // simulation.run();
+  auto simulation = Simulation();
+  simulation.run();
+  /*
   simxInt ret;
   simxInt clientID = simxStart("127.0.0.1", 19997, true, true, 5000, 5);
 
@@ -41,5 +42,6 @@ int main() {
     cerr << "simxStopSimulation error: " << ret << endl;
     return ret;
   }
+  */
   return 0;
 }
