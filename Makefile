@@ -88,4 +88,4 @@ re:	fclean all
 ##
 ## Avoid rules problems
 ##
-.PHONY: all clean fclean re prgrm $(PRGRM)
+.PHONY: all dir clean fclean re
