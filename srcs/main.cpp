@@ -4,10 +4,8 @@
 #include "Robot.hh"
 
 extern "C" {
-  #include "extApi.h"
+#include "extApi.h"
 }
-
-
 using namespace std;
 
 int main() {
@@ -22,7 +20,7 @@ int main() {
   }
 
   ret = simxStartSimulation(clientID, simx_opmode_oneshot);
-  if (ret != 0) {
+  if (ret != 0 && ret != 1) {
     cerr << "simxStartSimulation error: " << ret << endl;
     return ret;
   }
