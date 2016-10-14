@@ -52,3 +52,11 @@ void        Individual::setScore(fitness_t fitness) {
 void        Individual::setDna(dna_t dna) {
   _dna = dna;
 }
+
+void Individual::mutate() {
+  RandomGenerator &rg = RandomGenerator::getInstance();
+
+  for (unsigned int i = 0; i < _dna.size(); i++)
+    if (rg.i_between(0, 100) < _mutationRate)
+      _dna[i] = rg.i_between(0, Robot::highestAction());
+}

@@ -14,6 +14,7 @@ public:
   Individual(const dna_t &dna);
   Individual  &initialize(uint16_t maxActions);
   fitness_t   evaluate();
+  void        mutate();
   void        termDisplay();
   fitness_t   getScore() const;
   dna_t       getDna() const;
@@ -21,7 +22,7 @@ public:
   void        setDna(dna_t dna);
 
 private:
-  dna_t           _dna;
-  fitness_t       _score = 0;
-
+  static const uint8_t  _mutationRate = 5;
+  dna_t                 _dna;
+  fitness_t             _score = 0;
 };
