@@ -1,24 +1,24 @@
 #pragma once
 
+#include <ctime>
 #include "VrepConnection.hh"
 #include "types.hh"
-#include "Individual.hh"
-#include "RandomGenerator.hpp"
+#include "Population.hh"
 
 class Simulation {
-  //VrepConnection _connection;
 
 public:
 
   Simulation();
   ~Simulation();
-  void run();
+  int run();
 
 private:
-
-  Population *generatePopulation(uint16_t);
-  double evaluateIndividual(Individual);
-  double evaluate(Population);
+  Population            _population;
+  simxInt               _clientID;
+  const Robot           _robot;
+  const static uint16_t _maxPop = 20;
+  const static uint16_t _maxTries = 20;
 
 	void breedingSeason();
 	couple_t makeCouple(fitness_t);
