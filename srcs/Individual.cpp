@@ -29,6 +29,12 @@ fitness_t   Individual::evaluate() {
   return (_score);
 }
 
+Individual *
+Individual::mate(Individual *partner) {
+  (void)partner;
+  return nullptr;
+}
+
 void        Individual::termDisplay() const {
   std::cout << "Fitness: " << _score << ", dna: ";
   for (uint16_t i = 0; i < _dna.size(); i++) {

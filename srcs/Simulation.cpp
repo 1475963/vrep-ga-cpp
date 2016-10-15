@@ -69,25 +69,43 @@ int Simulation::run() {
 void
 Simulation::breedingSeason() {
   // suming the weights for a weighted random
-  // weigthsSum := _population.reduce { individual.score }
+  fitness_t weightsSum = 0;
+  for (auto individual : _population.getPopulation()) {
+    weightsSum += individual.getScore();
+  }
 
-  // repeat as many time as needed to ensure constant population size
-  // _population.length.times
-  //    couple := makeCouple()
-  //    child := couple.mate()
-  //    childrend << child
+  // container for new generation
+  auto newPopulationGeneration = Population(_population.getPopulation().size());
+
+  // repeat mating as many time as needed to ensure constant population size
+  for (uint i = 0; i < this->_population.getPopulation().size(); ++i) {
+    auto couple = this->makeCouple(weightsSum);
+    auto child = couple.first->mate(couple.second);
+    (void) child; // newPopulationGeneration.addIndividual(child);
+  }
 }
 
 couple_t
-Simulation::makeCouple(fitness_t weigthsSum) {
-  // saving the weightsSum
-  // weightsSumCopy := weightsSum
+Simulation::makeCouple(fitness_t weightsSum) {
+  Individual *leftMate, *rightMate = nullptr;
 
-  // lefftMate := iterating over the individuals, reducing the weightsSumCopy until it becomes negative: pick that one
-  // reset weightsSumCopy
-  // rightMate := iterating over the individuals, reducing the weightsSumCopy until it becomes negative: pick that one
+  // repeating until we got two different individuals that can mate
+  while (leftMate == rightMate || !leftMate || !rightMate) {
+    // get randomly a value corresponding to the weighted cursor
+    fitness_t randomWeightIndex = RandomGenerator::getInstance().d_between(0, weightsSum);
 
-  // ensure they aren't the same
-  // couple := pair(leftMate, rightMate)
-  // return couple
+    // searching for the individual aimed by the cursor
+    // (when the random weighted cursor goes under or is equal to 0)
+    for (auto individual : _population.getPopulation()) {
+      randomWeightIndex -= individual.getScore();
+      if (randomWeightIndex <= 0) {
+        if (leftMate)   rightMate = &individual;
+        else            leftMate = &individual;
+        break;
+      }
+    }
+  }
+
+  // returning the couple
+  return couple_t(leftMate, rightMate);
 }
