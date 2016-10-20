@@ -22,7 +22,7 @@ int Simulation::run() {
   clock_t start = clock();
 
   std::cout << "## START" << std::endl;
-  std::cout << "## Time spent: " << double(clock() - start) / CLOCKS_PER_SEC;
+  std::cout << "## Time spent: " << double(clock() - start) / CLOCKS_PER_SEC << std::endl;
 
   simxInt ret;
 
@@ -31,10 +31,13 @@ int Simulation::run() {
     // evaluate
     std::cout << "Global fitness: " << _population.evaluateBatch() << std::endl;
     // selection
+    _population.termDisplay();
+    this->breedingSeason();
+    std::cout << "population after selection" << std::endl;
+     _population.termDisplay();
     // elites
     // crossover
     // mutation
-    _population.termDisplay();
 
     // for each individual start a simulation and execute the dna on vrep
     for (uint16_t j = 0; j < _population.getPopulation().size(); j++) {
@@ -44,9 +47,9 @@ int Simulation::run() {
         return ret;
       }
 
-      _population.getPopulation()[j].termDisplay();
+      _population.getPopulation()[j]->termDisplay();
       // do action in vrep
-      ret = _robot.doActions(_population.getPopulation()[j].getDna());
+      ret = _robot.doActions(_population.getPopulation()[j]->getDna());
       if (ret != 0) {
         std::cerr << "Robot::doActions error: " << ret << std::endl;
         return ret;
@@ -71,18 +74,20 @@ Simulation::breedingSeason() {
   // suming the weights for a weighted random
   fitness_t weightsSum = 0;
   for (auto individual : _population.getPopulation()) {
-    weightsSum += individual.getScore();
+    weightsSum += individual->getScore();
   }
 
   // container for new generation
-  auto newPopulationGeneration = Population(_population.getPopulation().size());
+  auto newPopulationGeneration = Population(0);
 
   // repeat mating as many time as needed to ensure constant population size
   for (uint i = 0; i < this->_population.getPopulation().size(); ++i) {
     auto couple = this->makeCouple(weightsSum);
     auto child = couple.first->mate(couple.second);
-    (void) child; // newPopulationGeneration.addIndividual(child);
+//    newPopulationGeneration.getPopulation().push_back(couple.first);
+    newPopulationGeneration.addChild(couple.first);
   }
+  _population = newPopulationGeneration;
 }
 
 couple_t
@@ -96,11 +101,11 @@ Simulation::makeCouple(fitness_t weightsSum) {
 
     // searching for the individual aimed by the cursor
     // (when the random weighted cursor goes under or is equal to 0)
-    for (auto individual : _population.getPopulation()) {
-      randomWeightIndex -= individual.getScore();
+    for (Individual *individual : _population.getPopulation()) {
+      randomWeightIndex -= individual->getScore();
       if (randomWeightIndex <= 0) {
-        if (leftMate)   rightMate = &individual;
-        else            leftMate = &individual;
+        if (leftMate)   rightMate = individual;
+        else            leftMate = individual;
         break;
       }
     }

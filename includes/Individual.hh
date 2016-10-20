@@ -18,7 +18,7 @@ public:
   Individual *mate(Individual *);
   void        termDisplay() const;
   fitness_t   getScore() const;
-  dna_t       getDna() const;
+  dna_t       &getDna();
   void        setScore(fitness_t fitness);
   void        setDna(const dna_t &dna);
 

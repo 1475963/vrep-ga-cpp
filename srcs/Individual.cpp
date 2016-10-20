@@ -36,9 +36,8 @@ Individual::mate(Individual *partner) {
 }
 
 void        Individual::termDisplay() const {
-  std::cout << "Fitness: " << _score << ", dna: ";
-  for (uint16_t i = 0; i < _dna.size(); i++) {
-    std::cout << static_cast<int>(_dna[i]);
+  for (uint8_t action : _dna) {
+    std::cout << static_cast<int>(action);
   }
   std::cout << std::endl;
 }
@@ -47,7 +46,7 @@ fitness_t   Individual::getScore() const {
   return (_score);
 }
 
-dna_t       Individual::getDna() const {
+dna_t       &Individual::getDna() {
   return (_dna);
 }
 
