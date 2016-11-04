@@ -12,6 +12,14 @@ Individual::Individual(const dna_t &dna) {
   _dna = dna;
 }
 
+Individual  &Individual::operator=(const Individual &other) {
+  if (this != &other) {
+    _dna = dna_t(other._dna);
+    _score = other.getScore();
+  }
+  return *this;
+}
+
 void  Individual::initialize(uint16_t length) {
   RandomGenerator &rg = RandomGenerator::getInstance();
 
@@ -29,10 +37,15 @@ fitness_t   Individual::evaluate() {
   return (_score);
 }
 
+Individual *
+Individual::mate(Individual *partner) {
+  (void)partner;
+  return nullptr;
+}
+
 void        Individual::termDisplay() const {
-  std::cout << "Fitness: " << _score << ", dna: ";
-  for (uint16_t i = 0; i < _dna.size(); i++) {
-    std::cout << static_cast<int>(_dna[i]);
+  for (uint8_t action : _dna) {
+    std::cout << static_cast<int>(action);
   }
   std::cout << std::endl;
 }
@@ -41,7 +54,7 @@ fitness_t   Individual::getScore() const {
   return (_score);
 }
 
-dna_t       Individual::getDna() const {
+dna_t       &Individual::getDna() {
   return (_dna);
 }
 

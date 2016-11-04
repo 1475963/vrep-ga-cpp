@@ -12,12 +12,14 @@ public:
   Individual();
   Individual(uint16_t length);
   Individual(const dna_t &dna);
+  Individual  &operator=(const Individual &other);
   void        initialize(uint16_t length);
   fitness_t   evaluate();
   void        mutate();
+  Individual *mate(Individual *);
   void        termDisplay() const;
   fitness_t   getScore() const;
-  dna_t       getDna() const;
+  dna_t       &getDna();
   void        setScore(fitness_t fitness);
   void        setDna(const dna_t &dna);
 
