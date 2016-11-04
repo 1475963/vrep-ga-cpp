@@ -37,18 +37,18 @@ int Simulation::run() {
      _population.termDisplay();
 
     // elites
-    Individual *king = _population.getElite();
+    Individual *best = _population.getElite();
     std::cout << "Best individual data: " << std::endl;
-    king->termDisplay();
-    std::cout << "Fitness: " << king->getScore() << std::endl;
+    best->termDisplay();
+    std::cout << "Fitness: " << best->getScore() << std::endl;
 
-    Individual *clochard = _population.getWorst();
+    Individual *worst = _population.getWorst();
     std::cout << "Worst individual data: " << std::endl;
-    clochard->termDisplay();
-    std::cout << "Fitness: " << clochard->getScore() << std::endl;
+    worst->termDisplay();
+    std::cout << "Fitness: " << worst->getScore() << std::endl;
 
     // crossover
-    crossOverSinglePoint(king, clochard);
+    crossOverSinglePoint(best, worst);
 
     // mutation
     _population.mutateBatch();
