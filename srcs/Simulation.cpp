@@ -108,7 +108,7 @@ Simulation::breedingSeason() {
 
 couple_t
 Simulation::makeCouple(fitness_t weightsSum) {
-  Individual *leftMate, *rightMate = nullptr;
+  Individual *leftMate = nullptr, *rightMate = nullptr;
 
   // repeating until we got two different individuals that can mate
   while (leftMate == rightMate || !leftMate || !rightMate) {
