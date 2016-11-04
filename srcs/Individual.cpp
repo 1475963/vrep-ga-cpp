@@ -12,6 +12,14 @@ Individual::Individual(const dna_t &dna) {
   _dna = dna;
 }
 
+Individual  &Individual::operator=(const Individual &other) {
+  if (this != &other) {
+    _dna = dna_t(other._dna);
+    _score = other.getScore();
+  }
+  return *this;
+}
+
 void  Individual::initialize(uint16_t length) {
   RandomGenerator &rg = RandomGenerator::getInstance();
 

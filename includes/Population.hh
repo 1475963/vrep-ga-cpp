@@ -14,6 +14,9 @@ public:
     Population(uint16_t maxPop);
     void            initialize(uint16_t maxPop);
     fitness_t       evaluateBatch();
+    void            mutateBatch();
+    Individual      *getElite();
+    Individual      *getWorst();
     void            termDisplay() const;
     population_t    getPopulation();
     void            addChild(Individual *individual);

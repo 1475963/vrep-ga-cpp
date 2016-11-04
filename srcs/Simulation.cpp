@@ -24,35 +24,48 @@ int Simulation::run() {
   std::cout << "## START" << std::endl;
   std::cout << "## Time spent: " << double(clock() - start) / CLOCKS_PER_SEC << std::endl;
 
-  simxInt ret;
 
   for (uint16_t i = 0; i < _maxTries; i++) {
     std::cout << "Population size: " << _population.getPopulation().size() << std::endl;
     // evaluate
     std::cout << "Global fitness: " << _population.evaluateBatch() << std::endl;
+
     // selection
     _population.termDisplay();
     this->breedingSeason();
     std::cout << "population after selection" << std::endl;
      _population.termDisplay();
+
     // elites
+    Individual *king = _population.getElite();
+    std::cout << "Best individual data: " << std::endl;
+    king->termDisplay();
+    std::cout << "Fitness: " << king->getScore() << std::endl;
+
+    Individual *clochard = _population.getWorst();
+    std::cout << "Worst individual data: " << std::endl;
+    clochard->termDisplay();
+    std::cout << "Fitness: " << clochard->getScore() << std::endl;
+
     // crossover
+
     // mutation
+    _population.mutateBatch();
 
     // for each individual start a simulation and execute the dna on vrep
-    for (uint16_t j = 0; j < _population.getPopulation().size(); j++) {
+    for (Individual *individual : _population.getPopulation()) {
+      simxInt ret;
       ret = simxStartSimulation(_clientID, simx_opmode_oneshot_wait);
       if (ret != 0) {
         std::cerr << "simxStartSimulation error: " << ret << std::endl;
         return ret;
       }
 
-      _population.getPopulation()[j]->termDisplay();
-      // do action in vrep
-      ret = _robot.doActions(_population.getPopulation()[j]->getDna());
+      individual->termDisplay();
+      ret = _robot.doActions(individual->getDna());
       if (ret != 0) {
         std::cerr << "Robot::doActions error: " << ret << std::endl;
-        return ret;
+//        return ret;
       }
 
       ret = simxStopSimulation(_clientID, simx_opmode_oneshot_wait);
@@ -60,10 +73,12 @@ int Simulation::run() {
         std::cerr << "simxStopSimulation error: " << ret << std::endl;
         return ret;
       }
+      sleep(2);
     }
 
     // logs ?
   }
+
   std::cout << "## END" << std::endl;
   std::cout << "## Time spent: " << double(clock() - start) / CLOCKS_PER_SEC;
   return (0);

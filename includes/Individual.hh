@@ -12,6 +12,7 @@ public:
   Individual();
   Individual(uint16_t length);
   Individual(const dna_t &dna);
+  Individual  &operator=(const Individual &other);
   void        initialize(uint16_t length);
   fitness_t   evaluate();
   void        mutate();
