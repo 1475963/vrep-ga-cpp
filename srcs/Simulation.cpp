@@ -99,9 +99,8 @@ Simulation::breedingSeason() {
   // repeat mating as many time as needed to ensure constant population size
   for (uint i = 0; i < this->_population.getPopulation().size(); ++i) {
     auto couple = this->makeCouple(weightsSum);
-    auto child = couple.first->mate(couple.second);
-//    newPopulationGeneration.getPopulation().push_back(couple.first);
-    newPopulationGeneration.addChild(couple.first);
+    auto child = crossOverSinglePoint(couple.first, couple.second).first;
+    newPopulationGeneration.addChild(child);
   }
   _population = newPopulationGeneration;
 }
