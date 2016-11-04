@@ -48,6 +48,7 @@ int Simulation::run() {
     std::cout << "Fitness: " << clochard->getScore() << std::endl;
 
     // crossover
+    crossOverSinglePoint(king, clochard);
 
     // mutation
     _population.mutateBatch();
@@ -128,4 +129,28 @@ Simulation::makeCouple(fitness_t weightsSum) {
 
   // returning the couple
   return couple_t(leftMate, rightMate);
+}
+
+std::pair<Individual*, Individual*> Simulation::crossOverSinglePoint(Individual *first, Individual *second) {
+  int size;
+  int length;
+
+  length = (first->getDna().size() <= second->getDna().size()) ? first->getDna().size() : second->getDna().size();
+  size = RandomGenerator::getInstance().i_between(0, length);
+
+  Individual *newFirst = new Individual(0);
+  Individual *newSecond = new Individual(0);
+
+  for (int i = 0; i < size; i++) {
+    newFirst->getDna().push_back(second->getDna().at(i));
+    newSecond->getDna().push_back(first->getDna().at(i));
+  }
+  for (unsigned int i = size; i < first->getDna().size(); i++) {
+    newFirst->getDna().push_back(first->getDna().at(i));
+  }
+  for (unsigned int i = size; i < second->getDna().size(); i++) {
+    newSecond->getDna().push_back(second->getDna().at(i));
+  }
+
+  return std::pair<Individual *, Individual *>(newFirst, newSecond);
 }

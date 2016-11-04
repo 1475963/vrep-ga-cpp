@@ -22,4 +22,5 @@ private:
 
 	void breedingSeason();
 	couple_t makeCouple(fitness_t);
+  std::pair<Individual *, Individual*>  crossOverSinglePoint(Individual *, Individual *);
 };
