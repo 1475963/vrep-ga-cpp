@@ -8,7 +8,6 @@ Simulation::Simulation() :
   }
   for (uint16_t i = 0; i < _maxRobots; ++i) {
     _robots.push_back(Robot(_clientID));
-    usleep(100);
   }
   std::cout << "init state: " << std::endl;
   _population.termDisplay();
