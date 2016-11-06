@@ -45,9 +45,17 @@ Robot::Robot(simxInt clientID) :
   _clientID(clientID), _handlers(highestAction()), _id(_nextId) {
   ++_nextId;
   // here we throw but it's not a problem as this will later be done in another function
-  for (int i = 0; i < highestAction(); i++)
-    if (simxGetObjectHandle(_clientID, Robot::actions.at(i)._bodyPart, &_handlers[i], simx_opmode_blocking) != 0)
+  const char *id = std::to_string(_id).c_str();
+  for (int i = 0; i < highestAction(); i++) {
+//    cout << "robot bodypart + ext :" << Robot::actions.at(i)._bodyPart << "#" << static_cast<int>(_id) << endl;
+    char *completeBodyPart = new char[strlen(Robot::actions.at(i)._bodyPart) + strlen(id) + 1]();
+    memcpy(completeBodyPart, Robot::actions.at(i)._bodyPart, strlen(Robot::actions.at(i)._bodyPart));
+    strcat(completeBodyPart, "#");
+    strcat(completeBodyPart, id);
+//    cout << "completeBodyPart :" << completeBodyPart << endl;
+    if (simxGetObjectHandle(_clientID, completeBodyPart, &_handlers[i], simx_opmode_blocking) != 0)
       throw "err";
+  }
   cout << "Robot " << (int)_id << " created" << endl;
 }
 
@@ -66,7 +74,7 @@ simxInt		Robot::doActions(const dna_t &dna) const {
       continue;
     }
     cout << "Robot " << (int)_id << " executing " << actions.at(action)._description << endl;
-    ret = simxSetJointTargetPosition(_clientID, _handlers[action], Robot::actions.at(action)._intensity, simx_opmode_oneshot);
+    ret = simxSetJointTargetPosition(_clientID, _handlers[action], (Robot::actions.at(action)._intensity * M_PI) / 180, simx_opmode_blocking);
     if (ret != 0 && ret != 1)
       return ret;
     sleep(2);

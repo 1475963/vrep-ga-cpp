@@ -2,13 +2,20 @@
 
 Simulation::Simulation()
 : _population(Population(_maxPop)),
-  _clientID(simxStart("127.0.0.1", 19997, true, true, 5000, 5)),
-  _robot(Robot(_clientID))
+  _clientID(simxStart("127.0.0.1", 19997, true, true, 5000, 5))
+//  _robot(Robot(_clientID))
+//  _robots(std::vector<Robot>(0))
 //:  _connection(VrepConnection("127.0.0.1", 19997, 1, 1, 5000, 5))
 {
   if (_clientID == -1) {
     throw "simxStart error";
   }
+  for (uint16_t i = 0; i < _maxRobots; ++i) {
+    _robots.push_back(Robot(_clientID));
+    usleep(100);
+  }
+  std::cout << "init state: " << std::endl;
+  _population.termDisplay();
 }
 
 Simulation::~Simulation()
@@ -19,7 +26,10 @@ Simulation::~Simulation()
  *  Individual length and value limits are hardcoded :(
  */
 int Simulation::run() {
+  std::cout << "run state: " << std::endl;
+  _population.termDisplay();
   clock_t start = clock();
+  exit(0);
 
   std::cout << "## START" << std::endl;
   std::cout << "## Time spent: " << double(clock() - start) / CLOCKS_PER_SEC << std::endl;
@@ -27,6 +37,7 @@ int Simulation::run() {
 
   for (uint16_t i = 0; i < _maxTries; i++) {
     std::cout << "Population size: " << _population.getPopulation().size() << std::endl;
+
     // evaluate
     std::cout << "Global fitness: " << _population.evaluateBatch() << std::endl;
 
@@ -54,7 +65,8 @@ int Simulation::run() {
     _population.mutateBatch();
 
     // for each individual start a simulation and execute the dna on vrep
-    for (Individual *individual : _population.getPopulation()) {
+    for (uint16_t i = 0; i < _population.getPopulation().size(); ++i) {
+      Individual *individual = _population.getPopulation().at(i);
       simxInt ret;
       ret = simxStartSimulation(_clientID, simx_opmode_oneshot_wait);
       if (ret != 0) {
@@ -63,7 +75,7 @@ int Simulation::run() {
       }
 
       individual->termDisplay();
-      ret = _robot.doActions(individual->getDna());
+      ret = _robots[i % _maxRobots].doActions(individual->getDna());
       if (ret != 0) {
         std::cerr << "Robot::doActions error: " << ret << std::endl;
 //        return ret;
@@ -74,7 +86,7 @@ int Simulation::run() {
         std::cerr << "simxStopSimulation error: " << ret << std::endl;
         return ret;
       }
-      sleep(2);
+      sleep(1);
     }
 
     // logs ?
