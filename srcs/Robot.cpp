@@ -45,13 +45,12 @@ Robot::Robot(simxInt clientID) :
   _clientID(clientID), _handlers(highestAction()), _id(_nextId) {
   ++_nextId;
   // here we throw but it's not a problem as this will later be done in another function
-  const char *id = std::to_string(_id).c_str();
+  std::string id = "#" + std::to_string(_id);
   for (int i = 0; i < highestAction(); i++) {
-    char *completeBodyPart = new char[strlen(Robot::actions.at(i)._bodyPart) + strlen(id) + 1]();
-    memcpy(completeBodyPart, Robot::actions.at(i)._bodyPart, strlen(Robot::actions.at(i)._bodyPart));
-    strcat(completeBodyPart, "#");
-    strcat(completeBodyPart, id);
-    if (simxGetObjectHandle(_clientID, completeBodyPart, &_handlers[i], simx_opmode_blocking) != 0)
+    if (simxGetObjectHandle(_clientID,
+                            std::string(Robot::actions.at(i)._bodyPart + id).c_str(),
+                            &_handlers[i],
+                            simx_opmode_blocking) != 0)
       throw "err";
   }
   cout << "Robot " << (int)_id << " created" << endl;

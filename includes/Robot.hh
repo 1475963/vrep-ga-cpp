@@ -6,7 +6,7 @@
 #include <unistd.h> // sleep
 
 #define _USE_MATH_DEFINES // pi constant
-#include <math.h> // pi constant
+#include <cmath> // pi constant
 
 extern "C" {
 #include "extApi.h"
