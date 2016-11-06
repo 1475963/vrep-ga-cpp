@@ -22,7 +22,6 @@ int Simulation::run() {
   std::cout << "run state: " << std::endl;
   _population.termDisplay();
   clock_t start = clock();
-  exit(0);
 
   std::cout << "## START" << std::endl;
   std::cout << "## Time spent: " << double(clock() - start) / CLOCKS_PER_SEC << std::endl;
@@ -33,44 +32,46 @@ int Simulation::run() {
     // evaluate
     std::cout << "Global fitness: " << _population.evaluateBatch() << std::endl;
 
-    // selection
-    _population.termDisplay();
-    breedingSeason();
-    std::cout << "population after selection" << std::endl;
-     _population.termDisplay();
-
     // elites
     Individual &best = _population.getElite();
     std::cout << "Best individual data: " << std::endl;
     best.termDisplay();
     std::cout << "Fitness: " << best.getScore() << std::endl;
 
-    Individual &worst = _population.getWorst();
-    std::cout << "Worst individual data: " << std::endl;
-    worst.termDisplay();
-    std::cout << "Fitness: " << worst.getScore() << std::endl;
-
-    // crossover
-    crossOverSinglePoint(best, worst);
+    // selection
+    _population.termDisplay();
+    breedingSeason();
+    std::cout << "population after selection" << std::endl;
+     _population.termDisplay();
 
     // mutation
     _population.mutateBatch();
 
-    // for each individual start a simulation and execute the dna on vrep
-    for (unsigned int i = 0; i < _population.size(); i++) {
-      const Individual &individual = _population[i];
-      simxInt ret  = simxStartSimulation(_clientID, simx_opmode_oneshot_wait);
+    // replace worst by best
+    Individual &worst = _population.getWorst();
+    std::cout << "Worst individual data: " << std::endl;
+    worst.termDisplay();
+    std::cout << "Fitness: " << worst.getScore() << std::endl;
+    worst = best;
 
+    // for each individual start a simulation and execute the dna on vrep
+    for (unsigned int i = 0; i < _population.size();) {
+      simxInt ret = simxStartSimulation(_clientID, simx_opmode_oneshot_wait);
       if (ret != 0) {
         std::cerr << "simxStartSimulation error: " << ret << std::endl;
         return ret;
       }
 
-      individual.termDisplay();
-      ret = _robots[i % _maxRobots].doActions(individual.getDna());
-      if (ret != 0) {
-        std::cerr << "Robot::doActions error: " << ret << std::endl;
-//        return ret;
+      // parallelize here
+      for (uint j = 0; j < _maxRobots && i < _population.size(); ++j, ++i) {
+        const Individual &individual = _population[i];
+
+        individual.termDisplay();
+        ret = _robots[j].doActions(individual.getDna());
+        if (ret != 0) {
+          std::cerr << "Robot::doActions error: " << ret << std::endl;
+        //        return ret;
+        }
       }
 
       ret = simxStopSimulation(_clientID, simx_opmode_oneshot_wait);

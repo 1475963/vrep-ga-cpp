@@ -16,9 +16,8 @@ public:
 private:
   Population            _population;
   simxInt               _clientID;
-  std::vector<Robot>  _robots;
-//  const Robot           _robot;
-  const static uint16_t _maxPop = 5;
+  std::vector<Robot>    _robots;
+  const static uint16_t _maxPop = 40;
   const static uint16_t _maxTries = 20;
   const static uint16_t _maxRobots = 4;
 
