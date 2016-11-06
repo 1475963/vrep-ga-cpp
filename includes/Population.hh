@@ -18,7 +18,7 @@ public:
   Individual	&getElite();
   Individual	&getWorst();
   void		termDisplay() const;
-  void		addChild(const Individual &individual);
+  void		addIndividual(const Individual &individual);
   uint		size() const;
   const Individual	&operator[](uint index) const;
 

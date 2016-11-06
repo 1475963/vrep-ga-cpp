@@ -105,7 +105,7 @@ Simulation::breedingSeason() {
   for (i = 0; i < _population.size(); ++i) {
     const couple_t couple = makeCouple(weightsSum);
     const Individual child = crossOverSinglePoint(couple.first, couple.second).first;
-    newPopulationGeneration.addChild(child);
+    newPopulationGeneration.addIndividual(child);
   }
   _population = newPopulationGeneration;
 }

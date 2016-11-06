@@ -14,6 +14,7 @@ public:
   int run();
 
 private:
+
   Population            _population;
   simxInt               _clientID;
   std::vector<Robot>    _robots;

@@ -47,12 +47,10 @@ Robot::Robot(simxInt clientID) :
   // here we throw but it's not a problem as this will later be done in another function
   const char *id = std::to_string(_id).c_str();
   for (int i = 0; i < highestAction(); i++) {
-//    cout << "robot bodypart + ext :" << Robot::actions.at(i)._bodyPart << "#" << static_cast<int>(_id) << endl;
     char *completeBodyPart = new char[strlen(Robot::actions.at(i)._bodyPart) + strlen(id) + 1]();
     memcpy(completeBodyPart, Robot::actions.at(i)._bodyPart, strlen(Robot::actions.at(i)._bodyPart));
     strcat(completeBodyPart, "#");
     strcat(completeBodyPart, id);
-//    cout << "completeBodyPart :" << completeBodyPart << endl;
     if (simxGetObjectHandle(_clientID, completeBodyPart, &_handlers[i], simx_opmode_blocking) != 0)
       throw "err";
   }
