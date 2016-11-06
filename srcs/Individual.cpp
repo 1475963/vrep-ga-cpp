@@ -66,6 +66,8 @@ void  Individual::initialize(uint16_t length) {
   for (uint16_t i = 0; i < length; i++) {
     _dna.push_back(rg.i_between(0, Robot::highestAction()));
   }
+  std::cout << "DNA content: " << std::endl;
+  termDisplay();
 }
 
 /*
@@ -85,7 +87,7 @@ fitness_t   Individual::evaluate() {
 */
 void        Individual::termDisplay() const {
   for (uint8_t action : _dna) {
-    std::cout << static_cast<int>(action);
+    std::cout << static_cast<int>(action) << ".";
   }
   std::cout << std::endl;
 }

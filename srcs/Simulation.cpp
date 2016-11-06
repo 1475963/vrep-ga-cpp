@@ -1,12 +1,33 @@
 #include "Simulation.hh"
 
-Simulation::Simulation() :
-  _population(Population(_maxPop)),
-  _clientID(simxStart("127.0.0.1", 19997, true, true, 5000, 5)),
-  _robot(Robot(_clientID)) {
-  if (_clientID == -1) {
-    throw "simxStart error";
+Simulation::Simulation() {
+  // Connection to server
+  std::cout << "Connecting with VREP server. ";
+  _clientID = simxStart("127.0.0.1", 19997, true, true, 5000, 5);
+  if (_clientID == -1)
+    throw "Can't connect to VREP server";
+  std::cout << "Done." << std::endl;
+
+  // Robots linkage
+  std::cout << "Initializing robots. " << std::flush;
+  for (uint8_t robotId = 0; robotId < _maxRobots; ++robotId) {
+    _robots.push_back(Robot(_clientID, robotId));
   }
+  std::cout << "Done." << std::endl;
+
+  // Population creation
+  std::cout << "Creating first population. ";
+  _population = Population(_maxPop);
+  std::cout << "Done." << std::endl;
+
+  // Simulation overview
+  std::cout << "Simulation overview:" << std::endl;
+  std::cout << "- Robots:" << std::endl;
+  for (auto robot : _robots) {
+    std::cout << "\t robot " << (int)robot.getId() << " ready." << std::endl;
+  }
+  std::cout << "- Individuals:" << std::endl;
+  _population.termDisplay();
 }
 
 /**
@@ -14,6 +35,8 @@ Simulation::Simulation() :
  *  Individual length and value limits are hardcoded :(
  */
 int Simulation::run() {
+  std::cout << "run state: " << std::endl;
+  _population.termDisplay();
   clock_t start = clock();
 
   std::cout << "## START" << std::endl;
@@ -25,44 +48,46 @@ int Simulation::run() {
     // evaluate
     std::cout << "Global fitness: " << _population.evaluateBatch() << std::endl;
 
-    // selection
-    _population.termDisplay();
-    breedingSeason();
-    std::cout << "population after selection" << std::endl;
-     _population.termDisplay();
-
     // elites
     Individual &best = _population.getElite();
     std::cout << "Best individual data: " << std::endl;
     best.termDisplay();
     std::cout << "Fitness: " << best.getScore() << std::endl;
 
-    Individual &worst = _population.getWorst();
-    std::cout << "Worst individual data: " << std::endl;
-    worst.termDisplay();
-    std::cout << "Fitness: " << worst.getScore() << std::endl;
-
-    // crossover
-    crossOverSinglePoint(best, worst);
+    // selection
+    _population.termDisplay();
+    breedingSeason();
+    std::cout << "population after selection" << std::endl;
+     _population.termDisplay();
 
     // mutation
     _population.mutateBatch();
 
-    // for each individual start a simulation and execute the dna on vrep
-    for (unsigned int i = 0; i < _population.size(); i++) {
-      const Individual &individual = _population[i];
-      simxInt ret  = simxStartSimulation(_clientID, simx_opmode_oneshot_wait);
+    // replace worst by best
+    Individual &worst = _population.getWorst();
+    std::cout << "Worst individual data: " << std::endl;
+    worst.termDisplay();
+    std::cout << "Fitness: " << worst.getScore() << std::endl;
+    worst = best;
 
+    // for each individual start a simulation and execute the dna on vrep
+    for (unsigned int i = 0; i < _population.size();) {
+      simxInt ret = simxStartSimulation(_clientID, simx_opmode_oneshot_wait);
       if (ret != 0) {
         std::cerr << "simxStartSimulation error: " << ret << std::endl;
         return ret;
       }
 
-      individual.termDisplay();
-      ret = _robot.doActions(individual.getDna());
-      if (ret != 0) {
-        std::cerr << "Robot::doActions error: " << ret << std::endl;
-//        return ret;
+      // parallelize here
+      for (uint j = 0; j < _maxRobots && i < _population.size(); ++j, ++i) {
+        const Individual &individual = _population[i];
+
+        individual.termDisplay();
+        ret = _robots[j].doActions(individual.getDna());
+        if (ret != 0) {
+          std::cerr << "Robot::doActions error: " << ret << std::endl;
+        //        return ret;
+        }
       }
 
       ret = simxStopSimulation(_clientID, simx_opmode_oneshot_wait);
@@ -70,7 +95,7 @@ int Simulation::run() {
         std::cerr << "simxStopSimulation error: " << ret << std::endl;
         return ret;
       }
-      sleep(2);
+      sleep(1);
     }
 
     // logs ?
@@ -96,7 +121,7 @@ Simulation::breedingSeason() {
   for (i = 0; i < _population.size(); ++i) {
     const couple_t couple = makeCouple(weightsSum);
     const Individual child = crossOverSinglePoint(couple.first, couple.second).first;
-    newPopulationGeneration.addChild(child);
+    newPopulationGeneration.addIndividual(child);
   }
   _population = newPopulationGeneration;
 }
