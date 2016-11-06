@@ -3,6 +3,7 @@
 #include <ctime>
 #include <vector>
 #include <string>
+#include <omp.h>
 #include "VrepConnection.hh"
 #include "types.hh"
 #include "Population.hh"
@@ -19,9 +20,10 @@ private:
   Population            _population;
   simxInt               _clientID;
   std::vector<Robot>    _robots;
-  const static uint16_t _maxPop = 40;
-  const static uint16_t _maxTries = 20;
-  const static uint16_t _maxRobots = 4;
+
+  const uint16_t _maxRobots;
+  const uint16_t _maxPop;
+  const uint16_t _maxGenerations;
 
   void breedingSeason();
   couple_t makeCouple(fitness_t fitness);

@@ -21,6 +21,7 @@ void  Population::initialize(uint16_t maxPop) {
   _population.clear();
   _population.resize(maxPop);
 
+  #pragma omp parallel for
   for (uint16_t i = 0; i < maxPop; i++) {
     _population[i].initialize(rg.i_between(1, 10));
   }
