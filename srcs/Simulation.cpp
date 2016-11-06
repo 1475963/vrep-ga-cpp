@@ -1,16 +1,32 @@
 #include "Simulation.hh"
 
-Simulation::Simulation() :
-  _population(Population(_maxPop)),
-  _clientID(simxStart("127.0.0.1", 19997, true, true, 5000, 5)) {
-  if (_clientID == -1) {
-    throw "simxStart error";
+Simulation::Simulation() {
+  // Connection to server
+  std::cout << "Connecting with VREP server. ";
+  _clientID = simxStart("127.0.0.1", 19997, true, true, 5000, 5);
+  if (_clientID == -1)
+    throw "Can't connect to VREP server";
+  std::cout << "Done." << std::endl;
+
+  // Robots linkage
+  std::cout << "Initializing robots. " << std::flush;
+  for (uint8_t robotId = 0; robotId < _maxRobots; ++robotId) {
+    _robots.push_back(Robot(_clientID, robotId));
   }
-  for (uint16_t i = 0; i < _maxRobots; ++i) {
-    _robots.push_back(Robot(_clientID));
-    usleep(100);
+  std::cout << "Done." << std::endl;
+
+  // Population creation
+  std::cout << "Creating first population. ";
+  _population = Population(_maxPop);
+  std::cout << "Done." << std::endl;
+
+  // Simulation overview
+  std::cout << "Simulation overview:" << std::endl;
+  std::cout << "- Robots:" << std::endl;
+  for (auto robot : _robots) {
+    std::cout << "\t robot " << (int)robot.getId() << " ready." << std::endl;
   }
-  std::cout << "init state: " << std::endl;
+  std::cout << "- Individuals:" << std::endl;
   _population.termDisplay();
 }
 

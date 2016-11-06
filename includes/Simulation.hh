@@ -2,6 +2,7 @@
 
 #include <ctime>
 #include <vector>
+#include <string>
 #include "VrepConnection.hh"
 #include "types.hh"
 #include "Population.hh"

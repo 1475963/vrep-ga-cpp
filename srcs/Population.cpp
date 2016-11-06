@@ -24,9 +24,6 @@ void  Population::initialize(uint16_t maxPop) {
   for (uint16_t i = 0; i < maxPop; i++) {
     _population[i].initialize(rg.i_between(1, 10));
   }
-
-  std::cout << "resume population content: " << std::endl;
-  termDisplay();
 }
 
 /*
