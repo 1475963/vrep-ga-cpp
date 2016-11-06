@@ -11,7 +11,6 @@ class Simulation {
 public:
 
   Simulation();
-  ~Simulation();
   int run();
 
 private:
@@ -23,7 +22,7 @@ private:
   const static uint16_t _maxTries = 20;
   const static uint16_t _maxRobots = 4;
 
-	void breedingSeason();
-	couple_t makeCouple(fitness_t);
-  std::pair<Individual *, Individual*>  crossOverSinglePoint(Individual *, Individual *);
+  void breedingSeason();
+  couple_t makeCouple(fitness_t fitness);
+  couple_t crossOverSinglePoint(const Individual& i1, const Individual &i2);
 };

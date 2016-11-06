@@ -5,23 +5,24 @@
 #include "Individual.hh"
 #include "RandomGenerator.hpp"
 
-typedef std::vector<Individual *> population_t;
+typedef std::vector<Individual> population_t;
 
 class Population {
 
 public:
-    Population();
-    Population(uint16_t maxPop);
-    void            initialize(uint16_t maxPop);
-    fitness_t       evaluateBatch();
-    void            mutateBatch();
-    Individual      *getElite();
-    Individual      *getWorst();
-    void            termDisplay() const;
-    population_t    getPopulation();
-    void            addChild(Individual *individual);
+  Population() = default;
+  Population(uint16_t maxPop);
+  void		initialize(uint16_t maxPop);
+  fitness_t	evaluateBatch();
+  void		mutateBatch();
+  Individual	&getElite();
+  Individual	&getWorst();
+  void		termDisplay() const;
+  void		addChild(const Individual &individual);
+  uint		size() const;
+  const Individual	&operator[](uint index) const;
+
 
 private:
-    static const uint16_t   _defaultMaxPop = 50;
     population_t            _population;
 };

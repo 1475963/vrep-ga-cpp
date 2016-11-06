@@ -1,12 +1,8 @@
 #include "Simulation.hh"
 
-Simulation::Simulation()
-: _population(Population(_maxPop)),
-  _clientID(simxStart("127.0.0.1", 19997, true, true, 5000, 5))
-//  _robot(Robot(_clientID))
-//  _robots(std::vector<Robot>(0))
-//:  _connection(VrepConnection("127.0.0.1", 19997, 1, 1, 5000, 5))
-{
+Simulation::Simulation() :
+  _population(Population(_maxPop)),
+  _clientID(simxStart("127.0.0.1", 19997, true, true, 5000, 5)) {
   if (_clientID == -1) {
     throw "simxStart error";
   }
@@ -17,9 +13,6 @@ Simulation::Simulation()
   std::cout << "init state: " << std::endl;
   _population.termDisplay();
 }
-
-Simulation::~Simulation()
-{}
 
 /**
  *  Use a clock object ?
@@ -36,27 +29,26 @@ int Simulation::run() {
 
 
   for (uint16_t i = 0; i < _maxTries; i++) {
-    std::cout << "Population size: " << _population.getPopulation().size() << std::endl;
-
+    std::cout << "Population size: " << _population.size() << std::endl;
     // evaluate
     std::cout << "Global fitness: " << _population.evaluateBatch() << std::endl;
 
     // selection
     _population.termDisplay();
-    this->breedingSeason();
+    breedingSeason();
     std::cout << "population after selection" << std::endl;
      _population.termDisplay();
 
     // elites
-    Individual *best = _population.getElite();
+    Individual &best = _population.getElite();
     std::cout << "Best individual data: " << std::endl;
-    best->termDisplay();
-    std::cout << "Fitness: " << best->getScore() << std::endl;
+    best.termDisplay();
+    std::cout << "Fitness: " << best.getScore() << std::endl;
 
-    Individual *worst = _population.getWorst();
+    Individual &worst = _population.getWorst();
     std::cout << "Worst individual data: " << std::endl;
-    worst->termDisplay();
-    std::cout << "Fitness: " << worst->getScore() << std::endl;
+    worst.termDisplay();
+    std::cout << "Fitness: " << worst.getScore() << std::endl;
 
     // crossover
     crossOverSinglePoint(best, worst);
@@ -65,17 +57,17 @@ int Simulation::run() {
     _population.mutateBatch();
 
     // for each individual start a simulation and execute the dna on vrep
-    for (uint16_t i = 0; i < _population.getPopulation().size(); ++i) {
-      Individual *individual = _population.getPopulation().at(i);
-      simxInt ret;
-      ret = simxStartSimulation(_clientID, simx_opmode_oneshot_wait);
+    for (unsigned int i = 0; i < _population.size(); i++) {
+      const Individual &individual = _population[i];
+      simxInt ret  = simxStartSimulation(_clientID, simx_opmode_oneshot_wait);
+
       if (ret != 0) {
         std::cerr << "simxStartSimulation error: " << ret << std::endl;
         return ret;
       }
 
-      individual->termDisplay();
-      ret = _robots[i % _maxRobots].doActions(individual->getDna());
+      individual.termDisplay();
+      ret = _robots[i % _maxRobots].doActions(individual.getDna());
       if (ret != 0) {
         std::cerr << "Robot::doActions error: " << ret << std::endl;
 //        return ret;
@@ -101,67 +93,65 @@ void
 Simulation::breedingSeason() {
   // suming the weights for a weighted random
   fitness_t weightsSum = 0;
-  for (auto individual : _population.getPopulation()) {
-    weightsSum += individual->getScore();
-  }
-
   // container for new generation
-  auto newPopulationGeneration = Population(0);
+  Population newPopulationGeneration;
+  unsigned int i;
+
+  for (i = 0; i < _population.size(); i++)
+    weightsSum += _population[i].getScore();
 
   // repeat mating as many time as needed to ensure constant population size
-  for (uint i = 0; i < this->_population.getPopulation().size(); ++i) {
-    auto couple = this->makeCouple(weightsSum);
-    auto child = crossOverSinglePoint(couple.first, couple.second).first;
+  for (i = 0; i < _population.size(); ++i) {
+    const couple_t couple = makeCouple(weightsSum);
+    const Individual child = crossOverSinglePoint(couple.first, couple.second).first;
     newPopulationGeneration.addChild(child);
   }
   _population = newPopulationGeneration;
 }
 
-couple_t
-Simulation::makeCouple(fitness_t weightsSum) {
-  Individual *leftMate = nullptr, *rightMate = nullptr;
+couple_t Simulation::makeCouple(fitness_t weightsSum) {
+  Individual leftMate, rightMate;
+  unsigned int i;
+  fitness_t randomWeightIndex;
 
   // repeating until we got two different individuals that can mate
-  while (leftMate == rightMate || !leftMate || !rightMate) {
+  do {
     // get randomly a value corresponding to the weighted cursor
-    fitness_t randomWeightIndex = RandomGenerator::getInstance().d_between(0, weightsSum);
+    randomWeightIndex = RandomGenerator::getInstance().d_between(0, weightsSum);
 
     // searching for the individual aimed by the cursor
     // (when the random weighted cursor goes under or is equal to 0)
-    for (Individual *individual : _population.getPopulation()) {
-      randomWeightIndex -= individual->getScore();
+    for (i = 0; i < _population.size(); i++) {
+      const Individual &individual = _population[i];
+      randomWeightIndex -= individual.getScore();
       if (randomWeightIndex <= 0) {
-        if (leftMate)   rightMate = individual;
-        else            leftMate = individual;
+        if (leftMate.initialized())
+	  rightMate = individual;
+        else
+	  leftMate = individual;
         break;
       }
     }
-  }
+  } while (leftMate == rightMate || !leftMate.initialized() || !rightMate.initialized());
+  // might create an infinite loop if all individual in the population are eaquals
 
   // returning the couple
-  return couple_t(leftMate, rightMate);
+  return {leftMate, rightMate};
 }
 
-std::pair<Individual*, Individual*> Simulation::crossOverSinglePoint(Individual *first, Individual *second) {
-  int size;
-  int length;
+couple_t Simulation::crossOverSinglePoint(const Individual &first, const Individual &second) {
+  unsigned int length, size, i;
+  Individual newFirst, newSecond;
 
-  length = (first->getDna().size() <= second->getDna().size()) ? first->getDna().size() : second->getDna().size();
-  size = RandomGenerator::getInstance().i_between(0, length);
-
-  Individual *newFirst = new Individual(0);
-  Individual *newSecond = new Individual(0);
-
-  for (int i = 0; i < size; i++) {
-    newFirst->getDna().push_back(second->getDna().at(i));
-    newSecond->getDna().push_back(first->getDna().at(i));
+  length = first.dnaSize() <= second.dnaSize() ? first.dnaSize() : second.dnaSize();
+  size = RandomGenerator::getInstance().i_between(1, length);
+  for (i = 0; i < size; i++) {
+    newFirst.addGene(second.getGene(i));
+    newSecond.addGene(first.getGene(i));
   }
-  for (unsigned int i = size; i < first->getDna().size(); i++) {
-    newFirst->getDna().push_back(first->getDna().at(i));
-  }
-  for (unsigned int i = size; i < second->getDna().size(); i++) {
-    newSecond->getDna().push_back(second->getDna().at(i));
-  }
-
-  return std::pair<Individual *, Individual *>(newFirst, newSecond);
+  for (i = size; i < first.dnaSize(); i++)
+    newFirst.addGene(first.getGene(i));
+  for (i = size; i < second.dnaSize(); i++)
+    newSecond.addGene(second.getGene(i));
+  return {newFirst, newSecond};
 }
