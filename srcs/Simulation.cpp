@@ -11,7 +11,7 @@ Simulation::Simulation() {
   // Robots linkage
   std::cout << "Initializing robots. " << std::flush;
   for (uint8_t robotId = 0; robotId < _maxRobots; ++robotId) {
-    _robots.push_back(Robot(_clientID, robotId));
+    _robots.push_back({_clientID, robotId});
   }
   std::cout << "Done." << std::endl;
 
@@ -42,8 +42,8 @@ int Simulation::run() {
   std::cout << "## START" << std::endl;
   std::cout << "## Time spent: " << double(clock() - start) / CLOCKS_PER_SEC << std::endl;
 
-
   for (uint16_t i = 0; i < _maxTries; i++) {
+    _logger.push<std::string>("Individual\tfitness\n");
     std::cout << "Population size: " << _population.size() << std::endl;
     // evaluate
     std::cout << "Global fitness: " << _population.evaluateBatch() << std::endl;
@@ -97,13 +97,22 @@ int Simulation::run() {
       }
       sleep(1);
     }
-
-    // logs ?
+    logPopulation(i);
   }
 
   std::cout << "## END" << std::endl;
   std::cout << "## Time spent: " << double(clock() - start) / CLOCKS_PER_SEC;
   return (0);
+}
+
+void	Simulation::logPopulation(int index) {
+  for (uint i = 0; i < _population.size(); i++) {
+    const Individual &individual = _population[i];
+    _logger.push(_population[i].getDna(), '\t');
+    _logger.push<double>(individual.getScore());
+    _logger.newLine();
+  }
+  _logger.log("generation#" + std::to_string(index) + ".log");
 }
 
 void
