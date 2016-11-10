@@ -5,8 +5,6 @@
 #include "Individual.hh"
 #include "RandomGenerator.hpp"
 
-typedef std::vector<Individual> population_t;
-
 class Population {
 
 public:
