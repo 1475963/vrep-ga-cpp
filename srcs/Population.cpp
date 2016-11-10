@@ -23,7 +23,7 @@ void  Population::initialize(uint16_t maxPop) {
 
   #pragma omp parallel for
   for (uint16_t i = 0; i < maxPop; i++) {
-    _population[i].initialize(rg.i_between(1, 10));
+    _population[i].initialize(rg.i_between(50, 200));
   }
 }
 
@@ -105,7 +105,10 @@ void            Population::termDisplay() const {
 ** @param individual: Individual object
 */
 void            Population::addIndividual(const Individual &individual) {
-  _population.push_back(individual);
+  #pragma omp critical
+  {
+    _population.push_back(individual);
+  }
 }
 
 /*

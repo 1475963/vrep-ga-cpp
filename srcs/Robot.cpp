@@ -74,10 +74,6 @@ simxInt		Robot::doActions(const dna_t &dna) const {
       cerr << "Robot " << (int)_id << " can't execute " << (int)action << ": It does not exists!" << endl;
       continue;
     }
-    #pragma omp critical
-    {
-      cout << "Robot " << (int)_id << " executing " << _movements.at(action).description << endl;
-    }
 
     auto movementResult = simxSetJointTargetPosition(
       _clientID,
@@ -93,7 +89,6 @@ simxInt		Robot::doActions(const dna_t &dna) const {
         << endl;
       return movementResult;
     }
-    sleep(2);
   }
   return 0;
 }

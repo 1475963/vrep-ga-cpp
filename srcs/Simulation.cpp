@@ -58,7 +58,7 @@ int Simulation::run() {
   clock_t start = clock();
   std::cout << "## START" << std::endl;
 
-  Individual &best = _population.getElite(), &worst = _population.getElite();
+  Individual best = _population.getElite(), worst = _population.getElite();
   for (int generationIter = 0; generationIter < _maxGenerations; ++generationIter) {
     // Displaying population global state
     std::cout << "Population size: " << _population.size() << std::endl;
@@ -93,6 +93,7 @@ int Simulation::run() {
       if (simxStopSimulation(_clientID, simx_opmode_oneshot_wait) == -1) {
         throw "Fail to stop simulation";
       }
+      sleep(1);
     }
 
     // Evaluate the population
