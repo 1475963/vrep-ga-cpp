@@ -23,7 +23,6 @@ public:
     _text << data;
     if (separator != '\0')
       _text << separator;
-    std::cout << _text.str() << std::endl;
   }
 
   void push(const std::vector<uint8_t> &data, char separator = '\0');

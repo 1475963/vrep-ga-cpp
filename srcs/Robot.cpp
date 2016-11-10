@@ -40,7 +40,7 @@ Robot::Robot(simxInt clientID, robot_id_t id) :
   _id(id) {
 
   // Retrieving movements handlers
-  for (auto movement : _movements) {
+  for (const auto &movement : _movements) {
     // First creating articulation identifier
     const simxChar *completeBodyPart = (movement.bodyPart + '#' + std::to_string(_id)).c_str();
 
@@ -74,7 +74,7 @@ simxInt		Robot::doActions(const dna_t &dna) const {
       cerr << "Robot " << (int)_id << " can't execute " << (int)action << ": It does not exists!" << endl;
       continue;
     }
-    cout << "Robot " << (int)_id << " executing " << _movements.at(action).description << endl;
+
     auto movementResult = simxSetJointTargetPosition(
       _clientID,
       _movementHandlers[action],
@@ -87,8 +87,8 @@ simxInt		Robot::doActions(const dna_t &dna) const {
         << " (movement id" << _movementHandlers[action] << ")" 
         << "on robot " << std::to_string(_id)
         << endl;
+      return movementResult;
     }
-    sleep(2);
   }
   return 0;
 }
