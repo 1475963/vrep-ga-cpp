@@ -30,7 +30,7 @@ Simulation::Simulation() :
 
   auto err = simxGetObjectHandle(
     _clientID,
-    "ResizableFloot_5_25",
+    "ResizableFloor_5_25",
     &_floorHandler,
     simx_opmode_blocking
   );
@@ -103,20 +103,18 @@ int		Simulation::run() {
         simxFloat prevPos[3];
         robot.getPosition(prevPos, _floorHandler);
 
-        std::cout << "DNA: " << std::endl;
-        individual.termDisplay();
-        std::cout << "Start X: " << prevPos[0] << ", Y: " << prevPos[1] << std::endl;
+//        std::cout << "Start X: " << prevPos[0] << ", Y: " << prevPos[1] << std::endl;
 
         robot.doActions(individual.getDna());
 
         simxFloat nextPos[3];
         robot.getPosition(nextPos, _floorHandler);
 
-        std::cout << "End X: " << nextPos[0] << ", Y: " << nextPos[1] << std::endl;
+//        std::cout << "End X: " << nextPos[0] << ", Y: " << nextPos[1] << std::endl;
 
         double fitness = individual.evaluate(prevPos, nextPos);
-        std::cout << "Fitness computed: " << fitness << std::endl;
-        _population[i + batchIter].setScore(individual.getScore());
+//        std::cout << "Fitness computed: " << fitness << std::endl;
+        _population[i + batchIter].setScore(fitness);
       }
 
       i += _maxRobots;
@@ -154,7 +152,6 @@ int		Simulation::run() {
       newPopulationGeneration.addIndividual(child);
     }
    _population = newPopulationGeneration;
-//    selection();
    std::cout << "Selection done" << std::endl;
 
    // Mutation
