@@ -54,7 +54,7 @@ Simulation::~Simulation() {
 int		Simulation::run() {
   clock_t	start = clock();
   Individual	best, worst;
-  double	averageFitness, bestFit, worstFit;
+  double	averageFitness;
 
   std::cout << "## START" << std::endl;
   for (int generationIter = 0; generationIter < _maxGenerations; ++generationIter) {
@@ -145,10 +145,6 @@ Simulation::breedingSeason() {
   #pragma omp parallel for
   for (i = 0; i < _population.size(); ++i) {
     const couple_t couple = makeCouple(weightsSum);
-    std::cout << "ADN BEFOR CROSSOVER" << std::endl;
-    couple.first.termDisplay();
-    couple.second.termDisplay();
-    std::cout << "END" << std::endl;
     const Individual child = ( (this->*crossovers.at("SinglePoint"))(couple.first, couple.second) ).first;
     newPopulationGeneration.addIndividual(child);
   }
@@ -188,6 +184,7 @@ couple_t Simulation::makeCouple(fitness_t weightsSum) {
 const std::map<const std::string, const Simulation::func_ptr_t> Simulation::crossovers = {
   {"SinglePoint", &Simulation::crossOverSinglePoint},
   {"TowPoint", &Simulation::crossOverTwoPoint},
+  {"Uniform", &Simulation::crossOverUniform}
 };
 
 couple_t Simulation::crossOverTwoPoint(const Individual &first, const Individual &second) {
@@ -219,12 +216,29 @@ couple_t Simulation::crossOverTwoPoint(const Individual &first, const Individual
   for (unsigned int i = secondPoint; i < second.dnaSize(); i++) {
     newSecond.addGene(second.getGene(i));
   }
+  return {newFirst, newSecond};
+}
 
-  std::cout << "ADN TWO" << std::endl;
-  newFirst.termDisplay();
-  newSecond.termDisplay();
-  std::cout << "END" << std::endl;
-
+couple_t Simulation::crossOverUniform(const Individual &first, const Individual &second) {
+  unsigned int length = first.dnaSize() <= second.dnaSize() ? first.dnaSize() : second.dnaSize();
+  Individual newFirst, newSecond;
+  unsigned int i = 0;
+  
+  for (i = 0; i < length; i++) {
+    if (RandomGenerator::getInstance().i_between(0, 100) < 50) {
+      newFirst.addGene(first.getGene(i));
+      newSecond.addGene(second.getGene(i));
+    }
+    else {
+      newFirst.addGene(second.getGene(i));
+      newSecond.addGene(first.getGene(i));
+    }
+  }
+  
+  for (i = length; i < first.dnaSize(); i++)
+    newFirst.addGene(first.getGene(i));
+  for (i = length; i < second.dnaSize(); i++)
+    newSecond.addGene(second.getGene(i));
   return {newFirst, newSecond};
 }
 
