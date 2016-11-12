@@ -126,5 +126,5 @@ Individual	&Population::operator[](uint index) {
 ** @return Individual object at position 'index'
 */
 const Individual	&Population::at(uint index) const {
-  return _population[index];
+  return _population.at(index);
 }
