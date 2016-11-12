@@ -104,7 +104,7 @@ int		Simulation::run() {
     _logger.push<double>(averageFitness, _globalLogFile);
     logPopulation(generationIter);
 
-    // Replacing worst of this generation by best of the previous one
+    // Replacing worst of this generation by best of this generation
     if (generationIter)
       worst = best;
 
