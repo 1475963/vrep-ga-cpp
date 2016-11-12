@@ -37,7 +37,7 @@ CXXFLAGS += -std=c++11
 ## Variables
 ##
 CFLAGS += -DNON_MATLAB_PARSING -DMAX_EXT_API_CONNECTIONS=255
-CXXFLAGS += -DNON_MATLAB_PARSING -DMAX_EXT_API_CONNECTIONS=255
+CXXFLAGS += -DNON_MATLAB_PARSING -DMAX_EXT_API_CONNECTIONS=255 -fopenmp
 
 ##
 ## OSes
@@ -49,6 +49,7 @@ ifeq ($(OS), Linux)
 else
     CFLAGS += -D__linux
     CXXFLAGS += -D__APPLE__
+		CXX = clang-omp++
 endif
 
 ##

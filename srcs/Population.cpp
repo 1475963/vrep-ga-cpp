@@ -1,74 +1,130 @@
 #include "Population.hh"
 
-Population::Population() {
-  this->initialize(_defaultMaxPop);
-}
-
+/*
+** Population constructor generating a population of length maxPop
+** and initialize each individual
+**
+** @param maxPop: population length, number of individuals in population
+*/
 Population::Population(uint16_t maxPop) {
-  this->initialize(maxPop);
+  initialize(maxPop);
 }
 
+/*
+** Initialize population, each individual is initialized with a random length
+**
+** @param maxPop: population length, number of individuals in population
+*/
 void  Population::initialize(uint16_t maxPop) {
   RandomGenerator &rg = RandomGenerator::getInstance();
 
   _population.clear();
+  _population.resize(maxPop);
 
+  #pragma omp parallel for
   for (uint16_t i = 0; i < maxPop; i++) {
-    _population.push_back(new Individual(rg.i_between(1, 10)));
+    _population.at(i).initialize(rg.i_between(50, 200));
   }
 }
 
+/*
+** Walk through the population to compute each individual's fitness score
+**
+** @return The average fitness in population
+*/
 fitness_t       Population::evaluateBatch() {
   fitness_t     globalFitness = 0;
 
-  for (Individual *individual : _population) {
-    individual->evaluate();
-    globalFitness += individual->getScore();
+  for (auto &individual : _population) {
+    individual.evaluate();
+    globalFitness += individual.getScore();
   }
 
   return (globalFitness / (_population.size() > 0 ? _population.size() : 1));
 }
 
+/*
+** Walk through the population to eventually mutate an individual DNA
+*/
 void            Population::mutateBatch() {
-  for (Individual *individual : _population) {
-    individual->mutate();
+  for (auto &individual : _population) {
+    individual.mutate();
   }
 }
 
-Individual      *Population::getElite() {
-  Individual    *best = nullptr;
-
-  for (uint16_t i = 0; i < _population.size(); ++i) {
-    if (!best || _population[i]->getScore() > best->getScore()) {
-      best = _population[i];
-    }
-  }
-
-  return best;
+/**
+ * Sort the population from the best to the worst individual
+ */
+void		Population::sort() {
+  std::sort(_population.begin(), _population.end(), [](const Individual i1, const Individual i2) {
+      return i1.getScore() > i2.getScore();
+    });
 }
 
-Individual      *Population::getWorst() {
-  Individual    *worst = nullptr;
-
-  for (uint16_t i = 0; i < _population.size(); ++i) {
-    if (!worst || _population[i]->getScore() < worst->getScore()) {
-      worst = _population[i];
-    }
-  }
-
-  return worst;
+/*
+** Retrieve the individual with the best fitness score in the population
+**
+** @return best individual
+*/
+Individual      &Population::getElite() {
+  return _population.at(0);
 }
 
+/*
+** Retrieve the individual with the worst fitness score in the population
+**
+** @return worst individual
+*/
+Individual      &Population::getWorst() {
+  return _population.at(_population.size() - 1);
+}
+
+/*
+** Walk through the population to display each individual on console
+*/
 void            Population::termDisplay() const {
-  for (Individual *individual : _population) {
-    individual->termDisplay();
+  for (auto &individual : _population) {
+    individual.termDisplay();
   }
 }
 
-population_t    Population::getPopulation() {
-  return (_population);
+/*
+** Append individual into the population
+**
+** @param individual: Individual object
+*/
+void            Population::addIndividual(const Individual &individual) {
+  #pragma omp critical
+  {
+    _population.push_back(individual);
+  }
 }
 
-void            Population::addChild(Individual *individual) {
-  _population.push_back(individual);
+/*
+** Retrieve the population size
+**
+** @return population size
+*/
+uint		Population::size() const {
+  return _population.size();
+}
+
+/*
+** Population vector accessor
+**
+** @param index: uint that specifies a position in an array
+** @return Individual object at position 'index'
+*/
+Individual	&Population::operator[](uint index) {
+  return _population[index];
+}
+
+/*
+** Population vector accessor
+**
+** @param index: uint that specifies a position in an array
+** @return Individual object at position 'index'
+*/
+const Individual	&Population::at(uint index) const {
+  return _population.at(index);
 }

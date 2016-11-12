@@ -2,26 +2,29 @@
 
 #include <iostream>
 #include <sstream>
+#include <algorithm>
+
 #include "Individual.hh"
 #include "RandomGenerator.hpp"
-
-typedef std::vector<Individual *> population_t;
 
 class Population {
 
 public:
-    Population();
-    Population(uint16_t maxPop);
-    void            initialize(uint16_t maxPop);
-    fitness_t       evaluateBatch();
-    void            mutateBatch();
-    Individual      *getElite();
-    Individual      *getWorst();
-    void            termDisplay() const;
-    population_t    getPopulation();
-    void            addChild(Individual *individual);
+  Population() = default;
+  Population(uint16_t maxPop);
+  void		initialize(uint16_t maxPop);
+  fitness_t	evaluateBatch();
+  void		mutateBatch();
+  Individual	&getElite();
+  Individual	&getWorst();
+  void		termDisplay() const;
+  void		addIndividual(const Individual &individual);
+  uint		size() const;
+  Individual        &operator[](uint index);
+  const Individual  &at(uint index) const;
+  void		sort();
+
 
 private:
-    static const uint16_t   _defaultMaxPop = 50;
     population_t            _population;
 };

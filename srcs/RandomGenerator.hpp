@@ -35,7 +35,7 @@ public:
     int i_between(int min, int max) {
         return min_max<int, std::uniform_int_distribution>(min, max);
     }
-    
+
     /**
      * randomly get a double between [min ; max]
      * @param min, minimum possible double
@@ -47,7 +47,7 @@ public:
     }
 
 private:
-    
+
     // random seeder
     std::mt19937 _mt;
 
@@ -61,8 +61,8 @@ private:
         std::seed_seq seeds(std::begin(random_data), std::end(random_data));
         _mt.seed(seeds);
     }
-    
+
     RandomGenerator(const RandomGenerator &other) = delete;
     const RandomGenerator &operator=(const RandomGenerator &other) = delete;
-    ~RandomGenerator() {}
+    ~RandomGenerator() = default;
 };
