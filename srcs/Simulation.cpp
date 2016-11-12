@@ -184,11 +184,13 @@ couple_t Simulation::makeCouple(fitness_t weightsSum) {
 const std::map<const std::string, const Simulation::func_ptr_t> Simulation::crossovers = {
   {"SinglePoint", &Simulation::crossOverSinglePoint},
   {"CutSplice", &Simulation::crossOverCutAndSplice},
+  {"TowPoint", &Simulation::crossOverTwoPoint},
+  {"Uniform", &Simulation::crossOverUniform}
 };
 
 couple_t Simulation::crossOverCutAndSplice(const Individual &first, const Individual &second) {
-  int firstPoint = RandomGenerator::getInstance().i_between(0, first.dnaSize());
-  int secondPoint = RandomGenerator::getInstance().i_between(0, second.dnaSize());
+  unsigned int firstPoint = RandomGenerator::getInstance().i_between(0, first.dnaSize());
+  unsigned int secondPoint = RandomGenerator::getInstance().i_between(0, second.dnaSize());
   Individual newFirst, newSecond;
   unsigned int i = 0;
 
@@ -204,11 +206,57 @@ couple_t Simulation::crossOverCutAndSplice(const Individual &first, const Indivi
   return {newFirst, newSecond};
 }
 
+couple_t Simulation::crossOverTwoPoint(const Individual &first, const Individual &second) {
+  unsigned int length = first.dnaSize() <= second.dnaSize() ? first.dnaSize() : second.dnaSize();
+  unsigned int firstPoint = RandomGenerator::getInstance().i_between(1, length-1);
+  unsigned int secondPoint = RandomGenerator::getInstance().i_between(firstPoint, length);
+  unsigned int i = 0;
+  Individual newFirst, newSecond;
+
+  for (i = 0; i < firstPoint; i++) {
+    newFirst.addGene(first.getGene(i));
+    newSecond.addGene(second.getGene(i));
+  }
+  for (i = firstPoint; i < secondPoint; i++) {
+    newFirst.addGene(second.getGene(i));
+    newSecond.addGene(first.getGene(i));
+  }
+  for (i = secondPoint; i < first.dnaSize(); i++) {
+    newFirst.addGene(first.getGene(i));
+  }
+  for (i = secondPoint; i < second.dnaSize(); i++) {
+    newSecond.addGene(second.getGene(i));
+  }
+  return {newFirst, newSecond};
+}
+
+couple_t Simulation::crossOverUniform(const Individual &first, const Individual &second) {
+  unsigned int length = first.dnaSize() <= second.dnaSize() ? first.dnaSize() : second.dnaSize();
+  Individual newFirst, newSecond;
+  unsigned int i = 0;
+  
+  for (i = 0; i < length; i++) {
+    if (RandomGenerator::getInstance().i_between(0, 100) < 50) {
+      newFirst.addGene(first.getGene(i));
+      newSecond.addGene(second.getGene(i));
+    }
+    else {
+      newFirst.addGene(second.getGene(i));
+      newSecond.addGene(first.getGene(i));
+    }
+  }
+  
+  for (i = length; i < first.dnaSize(); i++)
+    newFirst.addGene(first.getGene(i));
+  for (i = length; i < second.dnaSize(); i++)
+    newSecond.addGene(second.getGene(i));
+  return {newFirst, newSecond};
+}
 
 couple_t Simulation::crossOverSinglePoint(const Individual &first, const Individual &second) {
   unsigned int length, size, i;
   Individual newFirst, newSecond;
-
+  
   length = first.dnaSize() <= second.dnaSize() ? first.dnaSize() : second.dnaSize();
   size = RandomGenerator::getInstance().i_between(1, length);
   for (i = 0; i < size; i++) {
