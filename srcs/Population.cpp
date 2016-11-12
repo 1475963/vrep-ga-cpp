@@ -52,42 +52,31 @@ void            Population::mutateBatch() {
   }
 }
 
+/**
+ * Sort the population from the best to the worst individual
+ */
+void		Population::sort() {
+  std::sort(_population.begin(), _population.end(), [](const Individual i1, const Individual i2) {
+      return i1.getScore() > i2.getScore();
+    });
+}
+
 /*
 ** Retrieve the individual with the best fitness score in the population
-** should be changed in order to sort the population and return n first elements
 **
 ** @return best individual
 */
 Individual      &Population::getElite() {
-  fitness_t	best = _population[0].getScore();
-  uint16_t	bestId = 0;
-
-  for (uint16_t i = 0; i < _population.size(); ++i) {
-    if (_population[i].getScore() > best) {
-      best = _population[i].getScore();
-      bestId = i;
-    }
-  }
-  return _population[bestId];
+  return _population[0];
 }
 
 /*
 ** Retrieve the individual with the worst fitness score in the population
-** should be changed in order to sort the population and return n last elements
 **
 ** @return worst individual
 */
 Individual      &Population::getWorst() {
-  fitness_t	worst = _population[0].getScore();
-  uint16_t	worstId = 0;
-
-  for (uint16_t i = 0; i < _population.size(); ++i) {
-    if (_population[i].getScore() < worst) {
-      worst = _population[i].getScore();
-      worstId = i;
-    }
-  }
-  return _population[worstId];
+  return _population[_population.size() - 1];
 }
 
 /*

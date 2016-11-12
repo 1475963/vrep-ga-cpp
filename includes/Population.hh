@@ -2,6 +2,8 @@
 
 #include <iostream>
 #include <sstream>
+#include <algorithm>
+
 #include "Individual.hh"
 #include "RandomGenerator.hpp"
 
@@ -18,6 +20,7 @@ public:
   void		termDisplay() const;
   void		addIndividual(const Individual &individual);
   uint		size() const;
+  void		sort();
   const Individual	&operator[](uint index) const;
 
 
