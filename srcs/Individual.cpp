@@ -104,31 +104,21 @@ fitness_t   Individual::evaluate(simxFloat *prevPos, simxFloat *nextPos) {
     y2 = 0;
   }
 
-  std::cout << "X1: " << x1 << "\tY1: " << y1 << std::endl;
-  std::cout << "X2: " << x2 << "\tY2: " << y2 << std::endl;
-
   float v1 = std::sqrt(pow(x1, 2) + pow(y1, 2)),
         v2 = std::sqrt(pow(x2, 2) + pow(y2, 2));
 
-  std::cout << "First vector: " << v1 << std::endl;
-  std::cout << "Second vector : " << v2 << std::endl;
-
   float moveVector = fabs(v1 - v2);
 
-  std::cout << "Movement vector" << moveVector << std::endl;
-
+/*
   moveVector = 1 / moveVector;
-
-  std::cout << "Normalized: " << moveVector << std::endl;
 
   // get the opposite because selection has an ascending order behavior (the bigger, the better)
   moveVector *= -1;
-
-  std::cout << "Adjust for implementation needs: " << moveVector << std::endl;
+  */
 
   _score = moveVector;
 
-  return moveVector;
+  return _score;
 }
 
 /*
@@ -139,6 +129,7 @@ void        Individual::termDisplay() const {
     std::cout << static_cast<int>(action) << ".";
   }
   std::cout << std::endl;
+  std::cout << "fitness: " << _score << std::endl;
 }
 
 /*

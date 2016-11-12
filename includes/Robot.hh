@@ -35,7 +35,7 @@ public:
 
   simxInt doActions(const dna_t &dna) const;
 
-  simxInt getPosition(simxFloat *position) const;
+  simxInt getPosition(simxFloat *position, simxInt objectRef) const;
 
 private:
   struct Movement {

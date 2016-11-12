@@ -16,16 +16,16 @@ Robot::Movement::Movement(const simxChar *bodyPart, const std::string &descripti
 /***** Robot *****/
 
 const Robot::movement_list_t Robot::_movements = {
-  { "LeftWheelJoint",  "Move left wheel forward",    1 },
-  { "LeftWheelJoint",  "Move left wheel backward",  -1 },
-  { "RightWheelJoint", "Move right wheel forward",   1 },
-  { "RightWheelJoint", "Move right wheel backward", -1 },
-  { "ShoulderMotor",   "Move shoulder forward",      1 },
-  { "ShoulderMotor",   "Move shoulder backward",    -1 },
-  { "ElbowMotor",      "Move elbow forward",         1 },
-  { "ElbowMotor",      "Move elbow backward",       -1 },
-  { "WristMotor",      "Move wrist forward",         1 },
-  { "WristMotor",      "Move wrist backward",       -1 }
+  { "LeftWheelJoint",  "Move left wheel forward",    20 },
+  { "LeftWheelJoint",  "Move left wheel backward",  -20 },
+  { "RightWheelJoint", "Move right wheel forward",   20 },
+  { "RightWheelJoint", "Move right wheel backward", -20 },
+  { "ShoulderMotor",   "Move shoulder forward",      20 },
+  { "ShoulderMotor",   "Move shoulder backward",    -20 },
+  { "ElbowMotor",      "Move elbow forward",         20 },
+  { "ElbowMotor",      "Move elbow backward",       -20 },
+  { "WristMotor",      "Move wrist forward",         20 },
+  { "WristMotor",      "Move wrist backward",       -20 }
 };
 
 /*
@@ -112,11 +112,11 @@ simxInt		Robot::doActions(const dna_t &dna) const {
 ** @param position: an array of 3 floats in which space positions (x, y, z) are stored
 ** @return: an error or success code as given by V-REP
 */
-simxInt   Robot::getPosition(simxFloat *position) const {
+simxInt   Robot::getPosition(simxFloat *position, simxInt objectRef) const {
   return simxGetObjectPosition(
     _clientID,
     _robotHandler,
-    -1,
+    objectRef,
     position,
     simx_opmode_blocking
   );

@@ -18,7 +18,8 @@ public:
   void		termDisplay() const;
   void		addIndividual(const Individual &individual);
   uint		size() const;
-  const Individual	&operator[](uint index) const;
+  Individual        &operator[](uint index);
+  const Individual  &at(uint index) const;
 
 
 private:
