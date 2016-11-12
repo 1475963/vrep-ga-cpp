@@ -1,6 +1,14 @@
 #include "Simulation.hh"
 
-Simulation::Simulation() {
+static inline double round3d(double val) {
+  return std::round(val * 1000.0) / 1000.0;
+}
+
+Simulation::Simulation() :
+  _maxRobots(omp_get_max_threads()),
+  _maxPop(8),
+  _maxGenerations(2) {
+  _logger.push<std::string>("best\tworst\taverage", _globalLogFile);
   // Connection to server
   std::cout << "Connecting with VREP server. ";
   _clientID = simxStart("127.0.0.1", 19997, true, true, 5000, 5);
@@ -10,8 +18,13 @@ Simulation::Simulation() {
 
   // Robots linkage
   std::cout << "Initializing robots. " << std::flush;
+  #pragma omp parallel for
   for (uint8_t robotId = 0; robotId < _maxRobots; ++robotId) {
-    _robots.push_back(Robot(_clientID, robotId));
+    auto robot = Robot(_clientID, robotId);
+    #pragma omp critical
+    {
+      _robots.push_back(robot);
+    }
   }
   std::cout << "Done." << std::endl;
 
@@ -30,80 +43,91 @@ Simulation::Simulation() {
   _population.termDisplay();
 }
 
+Simulation::~Simulation() {
+  _logger.log(_globalLogFile);
+}
+
 /**
  *  Use a clock object ?
  *  Individual length and value limits are hardcoded :(
  */
-int Simulation::run() {
-  std::cout << "run state: " << std::endl;
-  _population.termDisplay();
-  clock_t start = clock();
+int		Simulation::run() {
+  clock_t	start = clock();
+  Individual	best, worst;
+  double	averageFitness;
 
   std::cout << "## START" << std::endl;
-  std::cout << "## Time spent: " << double(clock() - start) / CLOCKS_PER_SEC << std::endl;
+  for (int generationIter = 0; generationIter < _maxGenerations; ++generationIter) {
+    _logger.push<std::string>("Individual\tfitness", "generation#" + std::to_string(generationIter) + ".log");
 
+    // Processing each individual of the population
+    for (uint i = 0; i < _population.size();) {
+      // Retrieving batch of individuals to run simulation on
+      population_t individualsBatch;
+      for (int robotId = 0; (robotId < _maxRobots) && (i + robotId < _population.size()); ++robotId) {
+        individualsBatch.push_back(_population[i + robotId]);
+      }
+      i += _maxRobots;
 
-  for (uint16_t i = 0; i < _maxTries; i++) {
-    std::cout << "Population size: " << _population.size() << std::endl;
-    // evaluate
-    std::cout << "Global fitness: " << _population.evaluateBatch() << std::endl;
-
-    // elites
-    Individual &best = _population.getElite();
-    std::cout << "Best individual data: " << std::endl;
-    best.termDisplay();
-    std::cout << "Fitness: " << best.getScore() << std::endl;
-
-    // selection
-    _population.termDisplay();
-    breedingSeason();
-    std::cout << "population after selection" << std::endl;
-     _population.termDisplay();
-
-    // mutation
-    _population.mutateBatch();
-
-    // replace worst by best
-    Individual &worst = _population.getWorst();
-    std::cout << "Worst individual data: " << std::endl;
-    worst.termDisplay();
-    std::cout << "Fitness: " << worst.getScore() << std::endl;
-    worst = best;
-
-    // for each individual start a simulation and execute the dna on vrep
-    for (unsigned int i = 0; i < _population.size();) {
-      simxInt ret = simxStartSimulation(_clientID, simx_opmode_oneshot_wait);
-      if (ret != 0) {
-        std::cerr << "simxStartSimulation error: " << ret << std::endl;
-        return ret;
+      // Start the simulation
+      if (simxStartSimulation(_clientID, simx_opmode_oneshot_wait) == -1) {
+        throw "Failed to start simulation";
       }
 
-      // parallelize here
-      for (uint j = 0; j < _maxRobots && i < _population.size(); ++j, ++i) {
-        const Individual &individual = _population[i];
+      // Each robot processing an individual in parallel
+      #pragma omp parallel for
+      for (uint batchIter = 0; batchIter < individualsBatch.size(); ++batchIter) {
+        const auto &individual = individualsBatch[batchIter];
+        const auto &robot = _robots[omp_get_thread_num()];
 
-        individual.termDisplay();
-        ret = _robots[j].doActions(individual.getDna());
-        if (ret != 0) {
-          std::cerr << "Robot::doActions error: " << ret << std::endl;
-        //        return ret;
-        }
+        robot.doActions(individual.getDna());
       }
 
-      ret = simxStopSimulation(_clientID, simx_opmode_oneshot_wait);
-      if (ret != 0) {
-        std::cerr << "simxStopSimulation error: " << ret << std::endl;
-        return ret;
+      // Stop the simulation
+      if (simxStopSimulation(_clientID, simx_opmode_oneshot_wait) == -1) {
+        throw "Fail to stop simulation";
       }
       sleep(1);
     }
 
-    // logs ?
+    // Evaluate the population
+    averageFitness = _population.evaluateBatch();
+
+    // Finding the worst of the current generation
+    worst = _population.getWorst();
+
+    // Finding the best of the current generation
+    best = _population.getElite();
+
+    _logger.push<double>(round3d(best.getScore()), _globalLogFile, '\t');
+    _logger.push<double>(round3d(worst.getScore()), _globalLogFile, '\t');
+    _logger.push<double>(averageFitness, _globalLogFile);
+    logPopulation(generationIter);
+
+    // Replacing worst of this generation by best of this generation
+    if (generationIter)
+      worst = best;
+
+    // Selection for next generation
+    breedingSeason();
+    // Mutation
+    _population.mutateBatch();
   }
 
   std::cout << "## END" << std::endl;
   std::cout << "## Time spent: " << double(clock() - start) / CLOCKS_PER_SEC;
   return (0);
+}
+
+void	Simulation::logPopulation(int index) {
+  std::string filePath = "generation#" + std::to_string(index) + ".log";
+
+  for (uint i = 0; i < _population.size(); i++) {
+    const Individual &individual = _population[i];
+    _logger.push(_population[i].getDna(), filePath, '\t');
+    _logger.push<double>(individual.getScore(), filePath);
+  }
+  _logger.log(filePath);
 }
 
 void
@@ -118,6 +142,7 @@ Simulation::breedingSeason() {
     weightsSum += _population[i].getScore();
 
   // repeat mating as many time as needed to ensure constant population size
+  #pragma omp parallel for
   for (i = 0; i < _population.size(); ++i) {
     const couple_t couple = makeCouple(weightsSum);
     const Individual child = ( (this->*crossovers.at("SinglePoint"))(couple.first, couple.second) ).first;
@@ -143,9 +168,9 @@ couple_t Simulation::makeCouple(fitness_t weightsSum) {
       randomWeightIndex -= individual.getScore();
       if (randomWeightIndex <= 0) {
         if (leftMate.initialized())
-	  rightMate = individual;
+          rightMate = individual;
         else
-	  leftMate = individual;
+          leftMate = individual;
         break;
       }
     }
