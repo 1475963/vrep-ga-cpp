@@ -190,26 +190,23 @@ const std::map<const std::string, const Simulation::func_ptr_t> Simulation::cros
 couple_t Simulation::crossOverUniform(const Individual &first, const Individual &second) {
   int length = first.dnaSize() <= second.dnaSize() ? first.dnaSize() : second.dnaSize();
   Individual newFirst, newSecond;
+  unsigned int i = 0;
   
-  for (int i = 0; i < length; i++) {
-    if (RandomGenerator::getInstance().i_between(0, 100) < 50)
+  for (i = 0; i < length; i++) {
+    if (RandomGenerator::getInstance().i_between(0, 100) < 50) {
       newFirst.addGene(first.getGene(i));
-    else
-      newFirst.addGene(second.getGene(i));
-    if (RandomGenerator::getInstance().i_between(0, 100) < 50)
-      newSecond.addGene(first.getGene(i));
-    else
       newSecond.addGene(second.getGene(i));
+    }
+    else {
+      newFirst.addGene(second.getGene(i));
+      newSecond.addGene(first.getGene(i));
+    }
   }
-  for (unsigned int i = length; i < first.dnaSize(); i++)
+  
+  for (i = length; i < first.dnaSize(); i++)
     newFirst.addGene(first.getGene(i));
-  for (unsigned int i = length; i < second.dnaSize(); i++)
+  for (i = length; i < second.dnaSize(); i++)
     newSecond.addGene(second.getGene(i));
-  std::cout << "ADN UNIFORM" << std::endl;
-  newFirst.termDisplay();
-  newSecond.termDisplay();
-  std::cout << "END" << std::endl;
-
   return {newFirst, newSecond};
 }
 
