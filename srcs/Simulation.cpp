@@ -122,7 +122,7 @@ int		Simulation::run() {
     #pragma omp parallel for shared(newPopulationGeneration)
     for (unsigned int i = 0; i < _population.size(); i++) {
       couple_t selected = (this->*(selections.at("tournament")))();
-      const Individual child = crossOverSinglePoint(selected.first, selected.second).first;
+      const Individual child = ((this->*crossovers.at("SinglePoint"))(selected.first,  selected.second)).first;
       newPopulationGeneration.addIndividual(child);
     }
    _population = newPopulationGeneration;
