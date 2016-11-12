@@ -3,6 +3,7 @@
 #include <ctime>
 #include <vector>
 #include <string>
+#include <map>
 #include "VrepConnection.hh"
 #include "types.hh"
 #include "Population.hh"
@@ -25,5 +26,11 @@ private:
 
   void breedingSeason();
   couple_t makeCouple(fitness_t fitness);
-  couple_t crossOverSinglePoint(const Individual& i1, const Individual &i2);
+
+  couple_t crossOverSinglePoint(const Individual&, const Individual &);
+  couple_t crossOverCutAndSplice(const Individual &, const Individual &);
+
+  
+  typedef couple_t (Simulation::*func_ptr_t)(const Individual &, const Individual &);
+  static const std::map<const std::string, const func_ptr_t> crossovers;
 };
