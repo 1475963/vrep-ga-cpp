@@ -74,7 +74,7 @@ simxInt		Robot::doActions(const dna_t &dna) const {
       cerr << "Robot " << (int)_id << " can't execute " << (int)action << ": It does not exists!" << endl;
       continue;
     }
-    cout << "Robot " << (int)_id << " executing " << _movements.at(action).description << endl;
+
     auto movementResult = simxSetJointTargetPosition(
       _clientID,
       _movementHandlers[action],
@@ -87,8 +87,8 @@ simxInt		Robot::doActions(const dna_t &dna) const {
         << " (movement id" << _movementHandlers[action] << ")" 
         << "on robot " << std::to_string(_id)
         << endl;
+      return movementResult;
     }
-    sleep(2);
   }
   return 0;
 }

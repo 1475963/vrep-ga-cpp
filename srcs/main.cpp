@@ -10,7 +10,7 @@ using namespace std;
 
 int main() {
   try {
-    Simulation simulation = Simulation();
+    Simulation simulation;
     return (simulation.run());
   }
   catch (const char *e) {
