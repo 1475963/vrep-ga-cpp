@@ -2,6 +2,8 @@
 
 #include <iostream>
 #include <sstream>
+#include <algorithm>
+
 #include "Individual.hh"
 #include "RandomGenerator.hpp"
 
@@ -20,6 +22,7 @@ public:
   uint		size() const;
   Individual        &operator[](uint index);
   const Individual  &at(uint index) const;
+  void		sort();
 
 
 private:
