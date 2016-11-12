@@ -183,9 +183,28 @@ couple_t Simulation::makeCouple(fitness_t weightsSum) {
 
 const std::map<const std::string, const Simulation::func_ptr_t> Simulation::crossovers = {
   {"SinglePoint", &Simulation::crossOverSinglePoint},
+  {"CutSplice", &Simulation::crossOverCutAndSplice},
   {"TowPoint", &Simulation::crossOverTwoPoint},
   {"Uniform", &Simulation::crossOverUniform}
 };
+
+couple_t Simulation::crossOverCutAndSplice(const Individual &first, const Individual &second) {
+  unsigned int firstPoint = RandomGenerator::getInstance().i_between(0, first.dnaSize());
+  unsigned int secondPoint = RandomGenerator::getInstance().i_between(0, second.dnaSize());
+  Individual newFirst, newSecond;
+  unsigned int i = 0;
+
+  for (i = 0; i < firstPoint; i++)
+    newFirst.addGene(first.getGene(i));
+  for (i = 0; i < secondPoint; i++)
+    newSecond.addGene(second.getGene(i));
+  
+  for (i = secondPoint; i < second.dnaSize(); i++)
+    newFirst.addGene(second.getGene(i));
+  for (i = firstPoint; i < first.dnaSize(); i++)
+    newSecond.addGene(first.getGene(i));
+  return {newFirst, newSecond};
+}
 
 couple_t Simulation::crossOverTwoPoint(const Individual &first, const Individual &second) {
   unsigned int length = first.dnaSize() <= second.dnaSize() ? first.dnaSize() : second.dnaSize();
