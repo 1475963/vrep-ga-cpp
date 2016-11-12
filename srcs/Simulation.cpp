@@ -1,21 +1,14 @@
 #include "Simulation.hh"
 
-static int
-roundUp(int numToRound, int multiple) {
-  if (multiple == 0)
-    return numToRound;
-
-  int remainder = numToRound % multiple;
-  if (remainder == 0)
-    return numToRound;
-
-  return numToRound + multiple - remainder;
+static inline double round3d(double val) {
+  return std::round(val * 1000.0) / 1000.0;
 }
 
 Simulation::Simulation() :
   _maxRobots(omp_get_max_threads()),
-  _maxPop(60), //_maxPop(roundUp(60, _maxRobots)),
+  _maxPop(8),
   _maxGenerations(2) {
+  _logger.push<std::string>("best\tworst\taverage", _globalLogFile);
   // Connection to server
   std::cout << "Connecting with VREP server. ";
   _clientID = simxStart("127.0.0.1", 19997, true, true, 5000, 5);
@@ -50,21 +43,22 @@ Simulation::Simulation() :
   _population.termDisplay();
 }
 
+Simulation::~Simulation() {
+  _logger.log(_globalLogFile);
+}
+
 /**
  *  Use a clock object ?
  *  Individual length and value limits are hardcoded :(
  */
-int Simulation::run() {
-  clock_t start = clock();
+int		Simulation::run() {
+  clock_t	start = clock();
+  Individual	best, worst;
+  double	averageFitness, bestFit, worstFit;
+
   std::cout << "## START" << std::endl;
-
-  Individual best = _population.getElite(), worst = _population.getElite();
   for (int generationIter = 0; generationIter < _maxGenerations; ++generationIter) {
-    // Displaying population global state
-    std::cout << "Population size: " << _population.size() << std::endl;
-
-    // Mutation
-    _population.mutateBatch();
+    _logger.push<std::string>("Individual\tfitness", "generation#" + std::to_string(generationIter) + ".log");
 
     // Processing each individual of the population
     for (uint i = 0; i < _population.size();) {
@@ -97,32 +91,43 @@ int Simulation::run() {
     }
 
     // Evaluate the population
-    _population.evaluateBatch();
+    averageFitness = _population.evaluateBatch();
 
     // Finding the worst of the current generation
     worst = _population.getWorst();
-    std::cout << "Worst individual data: " << std::endl;
-    worst.termDisplay();
-    std::cout << "Fitness: " << worst.getScore() << std::endl;
-
-    // Replacing worst of this generation by best of the previous one
-    if (generationIter) {
-      worst = best;
-    }
 
     // Finding the best of the current generation
     best = _population.getElite();
-    std::cout << "Best individual data: ";
-    best.termDisplay();
-    std::cout << "Fitness: " << best.getScore() << std::endl;
+
+    _logger.push<double>(round3d(best.getScore()), _globalLogFile, '\t');
+    _logger.push<double>(round3d(worst.getScore()), _globalLogFile, '\t');
+    _logger.push<double>(averageFitness, _globalLogFile);
+    logPopulation(generationIter);
+
+    // Replacing worst of this generation by best of the previous one
+    if (generationIter)
+      worst = best;
 
     // Selection for next generation
     breedingSeason();
+    // Mutation
+    _population.mutateBatch();
   }
 
   std::cout << "## END" << std::endl;
   std::cout << "## Time spent: " << double(clock() - start) / CLOCKS_PER_SEC;
   return (0);
+}
+
+void	Simulation::logPopulation(int index) {
+  std::string filePath = "generation#" + std::to_string(index) + ".log";
+
+  for (uint i = 0; i < _population.size(); i++) {
+    const Individual &individual = _population[i];
+    _logger.push(_population[i].getDna(), filePath, '\t');
+    _logger.push<double>(individual.getScore(), filePath);
+  }
+  _logger.log(filePath);
 }
 
 void
