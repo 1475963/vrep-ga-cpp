@@ -145,10 +145,6 @@ Simulation::breedingSeason() {
   #pragma omp parallel for
   for (i = 0; i < _population.size(); ++i) {
     const couple_t couple = makeCouple(weightsSum);
-    std::cout << "ADN BEFOR CROSSOVER" << std::endl;
-    couple.first.termDisplay();
-    couple.second.termDisplay();
-    std::cout << "END" << std::endl;
     const Individual child = ( (this->*crossovers.at("SinglePoint"))(couple.first, couple.second) ).first;
     newPopulationGeneration.addIndividual(child);
   }
@@ -192,39 +188,25 @@ const std::map<const std::string, const Simulation::func_ptr_t> Simulation::cros
 
 couple_t Simulation::crossOverTwoPoint(const Individual &first, const Individual &second) {
   int length = first.dnaSize() <= second.dnaSize() ? first.dnaSize() : second.dnaSize();
-  int firstPoint = RandomGenerator::getInstance().i_between(0, length);
-  int secondPoint = RandomGenerator::getInstance().i_between(0, length);
+  int firstPoint = RandomGenerator::getInstance().i_between(1, length-1);
+  int secondPoint = RandomGenerator::getInstance().i_between(firstPoint, length);
+  unsigned int i = 0;
   Individual newFirst, newSecond;
 
-
-  if (firstPoint == secondPoint && firstPoint >= 2)
-    firstPoint = firstPoint/2;
-  if (firstPoint > secondPoint) {
-    int tmp = firstPoint;
-    firstPoint = secondPoint;
-    secondPoint = tmp;
-  }
-
-  for (int i = 0; i < firstPoint; i++) {
+  for (i = 0; i < firstPoint; i++) {
     newFirst.addGene(first.getGene(i));
     newSecond.addGene(second.getGene(i));
   }
-  for (int i = firstPoint; i < secondPoint; i++) {
+  for (i = firstPoint; i < secondPoint; i++) {
     newFirst.addGene(second.getGene(i));
     newSecond.addGene(first.getGene(i));
   }
-  for (unsigned int i = secondPoint; i < first.dnaSize(); i++) {
+  for (i = secondPoint; i < first.dnaSize(); i++) {
     newFirst.addGene(first.getGene(i));
   }
-  for (unsigned int i = secondPoint; i < second.dnaSize(); i++) {
+  for (i = secondPoint; i < second.dnaSize(); i++) {
     newSecond.addGene(second.getGene(i));
   }
-
-  std::cout << "ADN TWO" << std::endl;
-  newFirst.termDisplay();
-  newSecond.termDisplay();
-  std::cout << "END" << std::endl;
-
   return {newFirst, newSecond};
 }
 
@@ -242,11 +224,5 @@ couple_t Simulation::crossOverSinglePoint(const Individual &first, const Individ
     newFirst.addGene(first.getGene(i));
   for (i = size; i < second.dnaSize(); i++)
     newSecond.addGene(second.getGene(i));
-  
-  std::cout << "ADN ONE" << std::endl;
-  newFirst.termDisplay();
-  newSecond.termDisplay();
-  std::cout << "END" << std::endl;
-  
   return {newFirst, newSecond};
 }
