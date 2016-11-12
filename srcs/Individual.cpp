@@ -86,35 +86,15 @@ fitness_t   Individual::evaluate() {
 ** @return: Individual fitness
 */
 fitness_t   Individual::evaluate(simxFloat *prevPos, simxFloat *nextPos) {
-  float x1 = prevPos[0],
-        y1 = prevPos[1],
-        x2 = nextPos[0],
-        y2 = nextPos[1];
-
-  if (isnan(x1) == true) {
-    x1 = 0;
-  }
-  if (isnan(y1) == true) {
-    y1 = 0;
-  }
-  if (isnan(x2) == true) {
-    x2 = 0;
-  }
-  if (isnan(y2) == true) {
-    y2 = 0;
-  }
+  float x1 = isnan(prevPos[0]) ? 0 : prevPos[0],
+        y1 = isnan(prevPos[1]) ? 0 : prevPos[1],
+        x2 = isnan(nextPos[0]) ? 0 : nextPos[0],
+        y2 = isnan(nextPos[1]) ? 0 : nextPos[1];
 
   float v1 = std::sqrt(pow(x1, 2) + pow(y1, 2)),
         v2 = std::sqrt(pow(x2, 2) + pow(y2, 2));
 
   float moveVector = fabs(v1 - v2);
-
-/*
-  moveVector = 1 / moveVector;
-
-  // get the opposite because selection has an ascending order behavior (the bigger, the better)
-  moveVector *= -1;
-  */
 
   _score = moveVector;
 
