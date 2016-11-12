@@ -120,7 +120,7 @@ Simulation::breedingSeason() {
   // repeat mating as many time as needed to ensure constant population size
   for (i = 0; i < _population.size(); ++i) {
     const couple_t couple = makeCouple(weightsSum);
-    const Individual child = crossOverSinglePoint(couple.first, couple.second).first;
+    const Individual child = ( (this->*crossovers.at("Uniform"))(couple.first, couple.second) ).first;
     newPopulationGeneration.addIndividual(child);
   }
   _population = newPopulationGeneration;
@@ -154,6 +154,38 @@ couple_t Simulation::makeCouple(fitness_t weightsSum) {
 
   // returning the couple
   return {leftMate, rightMate};
+}
+
+const std::map<const std::string, const Simulation::func_ptr_t> Simulation::crossovers = {
+  {"SinglePoint", &Simulation::crossOverSinglePoint},
+  {"Uniform", &Simulation::crossOverUniform}
+};
+
+
+couple_t Simulation::crossOverUniform(const Individual &first, const Individual &second) {
+  int length = first.dnaSize() <= second.dnaSize() ? first.dnaSize() : second.dnaSize();
+  Individual newFirst, newSecond;
+  
+  for (int i = 0; i < length; i++) {
+    if (RandomGenerator::getInstance().i_between(0, 100) < 50)
+      newFirst.addGene(first.getGene(i));
+    else
+      newFirst.addGene(second.getGene(i));
+    if (RandomGenerator::getInstance().i_between(0, 100) < 50)
+      newSecond.addGene(first.getGene(i));
+    else
+      newSecond.addGene(second.getGene(i));
+  }
+  for (unsigned int i = length; i < first.dnaSize(); i++)
+    newFirst.addGene(first.getGene(i));
+  for (unsigned int i = length; i < second.dnaSize(); i++)
+    newSecond.addGene(second.getGene(i));
+  std::cout << "ADN UNIFORM" << std::endl;
+  newFirst.termDisplay();
+  newSecond.termDisplay();
+  std::cout << "END" << std::endl;
+
+  return {newFirst, newSecond};
 }
 
 couple_t Simulation::crossOverSinglePoint(const Individual &first, const Individual &second) {
