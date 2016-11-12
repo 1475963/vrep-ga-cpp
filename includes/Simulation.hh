@@ -39,8 +39,6 @@ private:
 
   couple_t		fitnessProportionalSelection() const;
   couple_t		tournamentSelection() const;
-  uint        rouletteWheel();
-  void        selection();
   void			logPopulation(int index);
   void			logStats(const Individual &i1, const Individual &i2, double avgFit);
 

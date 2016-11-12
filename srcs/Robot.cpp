@@ -112,7 +112,7 @@ simxInt		Robot::doActions(const dna_t &dna) const {
 ** @param position: an array of 3 floats in which space positions (x, y, z) are stored
 ** @return: an error or success code as given by V-REP
 */
-simxInt   Robot::getPosition(simxFloat *position, simxInt objectRef) const {
+simxInt   Robot::getPosition(simxFloat *position, const simxInt objectRef) const {
   return simxGetObjectPosition(
     _clientID,
     _robotHandler,

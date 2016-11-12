@@ -77,7 +77,7 @@ Simulation::~Simulation() {
 int		Simulation::run() {
   clock_t	start = clock();
   Individual	best, worst;
-  double	averageFitness;
+  double	averageFitness = 0.0f;
 
   std::cout << "## START" << std::endl;
   for (int generationIter = 0; generationIter < _maxGenerations; ++generationIter) {
