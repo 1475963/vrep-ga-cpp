@@ -3,6 +3,7 @@
 #include <ctime>
 #include <vector>
 #include <string>
+#include <map>
 #include <omp.h>
 #include <cmath>
 #include <map>
@@ -37,7 +38,14 @@ private:
 
   couple_t		fitnessProportionalSelection() const;
   couple_t		tournamentSelection() const;
-  couple_t		crossOverSinglePoint(const Individual& i1, const Individual &i2);
   void			logPopulation(int index);
   void			logStats(const Individual &i1, const Individual &i2, double avgFit);
+
+  couple_t crossOverSinglePoint(const Individual&, const Individual &);
+  couple_t crossOverCutAndSplice(const Individual &, const Individual &);
+  couple_t crossOverTwoPoint(const Individual &, const Individual &);
+  couple_t crossOverUniform(const Individual &, const Individual &);
+
+  typedef couple_t (Simulation::*func_ptr_t)(const Individual &, const Individual &);
+  static const std::map<const std::string, const func_ptr_t> crossovers;
 };
