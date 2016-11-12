@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <vector>
 #include <iostream>
+#include <map>
 
 class Logger {
 public:
@@ -19,18 +20,22 @@ public:
  * @param separator: character to write after the text
  */
   template <class T>
-  void	push(const T &data, char separator = '\0') {
-    _text << data;
-    if (separator != '\0')
-      _text << separator;
+  void	push(const T &data, const std::string &file, char separator = '\n') {
+    _logFiles[file].text << data;
+    _logFiles[file].text << separator;
   }
 
-  void push(const std::vector<uint8_t> &data, char separator = '\0');
-  void newLine();
-  bool log(const std::string &file);
+  void	push(const std::vector<uint8_t> &data, const std::string &file, char separator = '\n');
+  bool	log(const std::string &file);
 
 private:
-  std::ostringstream _text;
-  std::string _currentFile;
-  std::ofstream _logFile;
+
+  struct LogFile {
+    std::ostringstream	text;
+    std::ofstream	file;
+  };
+
+  std::map<std::string, LogFile>	_logFiles;
+
+  void	write(LogFile &logFile);
 };

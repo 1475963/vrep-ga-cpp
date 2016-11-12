@@ -1,50 +1,49 @@
 #include "Logger.hh"
 
-/*
-** Logger destructor - close opened file.
-*/
+/**
+ * Logger destructor - close opened file.
+ */
 Logger::~Logger() {
-  if (_logFile.is_open())
-    _logFile.close();
+
+  for (auto &logFile : _logFiles)
+    if (logFile.second.file.is_open()) {
+      write(logFile.second);
+      logFile.second.file.close();
+    }
 }
 
-/*
-** push a vector of uint8_t to the text
-**
-** @param data: vector to hapen to the text
-** @param separator: character to write after the text
-*/
-void	Logger::push(const std::vector<uint8_t> &data, char separator) {
+/**
+ * push a vector of uint8_t to the text
+ *
+ * @param data: vector to hapen to the text
+ * @param separator: character to write after the text
+ */
+void	Logger::push(const std::vector<uint8_t> &data, const std::string &file, char separator) {
   for (uint d : data)
-    push<uint>(d);
-  if (separator != '\0')
-    push<char>(separator);
+    push<uint>(d, file, '\0');
+  push<char>(separator, file);
 }
 
-/*
-** Add one newline to saved text
-*/
-void	Logger::newLine() {
-  _text << '\n';
+void	Logger::write(LogFile &logFile) {
+  logFile.file << logFile.text.str();
+  logFile.file.close();
+  logFile.text.str("");
+  logFile.text.clear();
 }
 
-/*
-** Save texxt to file
-**
-** @param file: file in which the text has to be saved
-** @return: whether the operation succeed
-*/
-bool Logger::log(const std::string &file) {
-  if (_currentFile != file) {
-    if (_logFile.is_open())
-      _logFile.close();
-    _currentFile = file;
-    _logFile.open(_currentFile, std::ofstream::out | std::ofstream::trunc);
-    if (!_logFile.is_open())
-      return false;
-  }
-  _logFile << _text.str();
-  _text.str("");
-  _text.clear();
+/**
+ * Save text to file
+ *
+ * @param file: file in which the text has to be saved
+ * @return: whether the operation succeed
+ */
+bool Logger::log(const std::string &filePath) {
+  if (_logFiles.find(filePath) == _logFiles.end())
+    return false;
+  LogFile &logFile = _logFiles[filePath];
+  logFile.file.open(filePath, std::ofstream::out | std::ofstream::trunc);
+  if (logFile.file.is_open() == false)
+    return false;
+  write(logFile);
   return true;
 }
