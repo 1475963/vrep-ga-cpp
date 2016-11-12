@@ -184,46 +184,6 @@ void	Simulation::logPopulation(int index) {
   _logger.log(filePath);
 }
 
-void Simulation::selection() {
-  Population newPop;
-
-  for (uint i = 0; i < _population.size(); ++i) {
-    uint index = rouletteWheel();
-    Individual indiv = _population.at(index);
-    // crossover rate
-    if (RandomGenerator::getInstance().d_between(0, 1) <= 0.7f) {
-      index = rouletteWheel();
-      // at random, should launch a simulation to compute fitness and keep the best
-      if (RandomGenerator::getInstance().d_between(0, 1) <= 0.5f) {
-        indiv = crossOverSinglePoint(indiv, _population.at(index)).first;
-      }
-      else {
-        indiv = crossOverSinglePoint(indiv, _population.at(index)).second;
-      }
-    }
-    newPop.addIndividual(indiv);
-  }
-
-  _population = newPop;
-}
-
-uint Simulation::rouletteWheel() {
-  double maxFitness = 0, sumFitness = 0;
-  uint i = 0;
-
-  for (i = 0; i < _population.size(); ++i) {
-    maxFitness += _population.at(i).getScore();
-  }
-
-  double target = RandomGenerator::getInstance().d_between(0, maxFitness);
-
-  for (i = 0; sumFitness < target; ++i) {
-    sumFitness += _population.at(i).getScore();
-  }
-
-  return i;
-}
-
 /***** Selections *****/
 
 couple_t	Simulation::fitnessProportionalSelection() const {
