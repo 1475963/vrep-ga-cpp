@@ -81,6 +81,27 @@ fitness_t   Individual::evaluate() {
 }
 
 /*
+** fitness function, takes two position states and computes a ratio
+**
+** @return: Individual fitness
+*/
+fitness_t   Individual::evaluate(simxFloat *prevPos, simxFloat *nextPos) {
+  float x1 = isnan(prevPos[0]) ? 0 : prevPos[0],
+        y1 = isnan(prevPos[1]) ? 0 : prevPos[1],
+        x2 = isnan(nextPos[0]) ? 0 : nextPos[0],
+        y2 = isnan(nextPos[1]) ? 0 : nextPos[1];
+
+  float v1 = std::sqrt(pow(x1, 2) + pow(y1, 2)),
+        v2 = std::sqrt(pow(x2, 2) + pow(y2, 2));
+
+  float moveVector = fabs(v1 - v2);
+
+  _score = moveVector;
+
+  return _score;
+}
+
+/*
 ** Print an individual DNA
 */
 void        Individual::termDisplay() const {
@@ -88,6 +109,7 @@ void        Individual::termDisplay() const {
     std::cout << static_cast<int>(action) << ".";
   }
   std::cout << std::endl;
+  std::cout << "fitness: " << _score << std::endl;
 }
 
 /*

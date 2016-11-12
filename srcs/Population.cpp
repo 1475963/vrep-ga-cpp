@@ -23,7 +23,7 @@ void  Population::initialize(uint16_t maxPop) {
 
   #pragma omp parallel for
   for (uint16_t i = 0; i < maxPop; i++) {
-    _population[i].initialize(rg.i_between(50, 200));
+    _population.at(i).initialize(rg.i_between(50, 200));
   }
 }
 
@@ -67,7 +67,7 @@ void		Population::sort() {
 ** @return best individual
 */
 Individual      &Population::getElite() {
-  return _population[0];
+  return _population.at(0);
 }
 
 /*
@@ -76,7 +76,7 @@ Individual      &Population::getElite() {
 ** @return worst individual
 */
 Individual      &Population::getWorst() {
-  return _population[_population.size() - 1];
+  return _population.at(_population.size() - 1);
 }
 
 /*
@@ -115,6 +115,16 @@ uint		Population::size() const {
 ** @param index: uint that specifies a position in an array
 ** @return Individual object at position 'index'
 */
-const Individual	&Population::operator[](uint index) const {
+Individual	&Population::operator[](uint index) {
   return _population[index];
+}
+
+/*
+** Population vector accessor
+**
+** @param index: uint that specifies a position in an array
+** @return Individual object at position 'index'
+*/
+const Individual	&Population::at(uint index) const {
+  return _population.at(index);
 }

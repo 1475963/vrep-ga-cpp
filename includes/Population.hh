@@ -20,8 +20,9 @@ public:
   void		termDisplay() const;
   void		addIndividual(const Individual &individual);
   uint		size() const;
+  Individual        &operator[](uint index);
+  const Individual  &at(uint index) const;
   void		sort();
-  const Individual	&operator[](uint index) const;
 
 
 private:

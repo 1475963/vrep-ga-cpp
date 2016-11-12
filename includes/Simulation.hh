@@ -28,6 +28,7 @@ private:
 
   Population            _population;
   simxInt               _clientID;
+  simxInt               _floorHandler;
   std::vector<Robot>    _robots;
   Logger		_logger;
 

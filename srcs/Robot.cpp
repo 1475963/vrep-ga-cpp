@@ -39,6 +39,19 @@ Robot::Robot(simxInt clientID, robot_id_t id) :
   _clientID(clientID),
   _id(id) {
 
+  const char *robotName = ("2WA1#" + std::to_string(_id)).c_str();
+  auto err = simxGetObjectHandle(
+    _clientID,
+    robotName,
+    &_robotHandler,
+    simx_opmode_blocking
+  );
+
+  if (err == -1) {
+    auto errMsg = string("Can't get object handle for ") + robotName;
+    throw errMsg.c_str();
+  }
+
   // Retrieving movements handlers
   for (const auto &movement : _movements) {
     // First creating articulation identifier
@@ -84,11 +97,27 @@ simxInt		Robot::doActions(const dna_t &dna) const {
     if (movementResult == -1) {
       cerr
         << "Movement failed for action " << action
-        << " (movement id" << _movementHandlers[action] << ")" 
+        << " (movement id" << _movementHandlers[action] << ")"
         << "on robot " << std::to_string(_id)
         << endl;
       return movementResult;
     }
   }
   return 0;
+}
+
+/*
+** Retrieve the current position of the robot
+**
+** @param position: an array of 3 floats in which space positions (x, y, z) are stored
+** @return: an error or success code as given by V-REP
+*/
+simxInt   Robot::getPosition(simxFloat *position, const simxInt objectRef) const {
+  return simxGetObjectPosition(
+    _clientID,
+    _robotHandler,
+    objectRef,
+    position,
+    simx_opmode_blocking
+  );
 }

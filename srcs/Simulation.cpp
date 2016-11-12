@@ -18,8 +18,8 @@ const std::map<const std::string, const Simulation::func_ptr_t> Simulation::cros
 
 Simulation::Simulation() :
   _maxRobots(omp_get_max_threads()),
-  _maxPop(8),
-  _maxGenerations(2) {
+  _maxPop(16),
+  _maxGenerations(5) {
   _logger.push<std::string>("best\tworst\taverage", _globalLogFile);
   // Connection to server
   std::cout << "Connecting with VREP server. ";
@@ -27,6 +27,17 @@ Simulation::Simulation() :
   if (_clientID == -1)
     throw "Can't connect to VREP server";
   std::cout << "Done." << std::endl;
+
+  auto err = simxGetObjectHandle(
+    _clientID,
+    "ResizableFloor_5_25",
+    &_floorHandler,
+    simx_opmode_blocking
+  );
+
+  if (err == -1) {
+    throw "Can't get object handle for floor";
+  }
 
   // Robots linkage
   std::cout << "Initializing robots. " << std::flush;
@@ -66,7 +77,7 @@ Simulation::~Simulation() {
 int		Simulation::run() {
   clock_t	start = clock();
   Individual	best, worst;
-  double	averageFitness;
+  double	averageFitness = 0.0f;
 
   std::cout << "## START" << std::endl;
   for (int generationIter = 0; generationIter < _maxGenerations; ++generationIter) {
@@ -75,9 +86,8 @@ int		Simulation::run() {
       // Retrieving batch of individuals to run simulation on
       population_t individualsBatch;
       for (int robotId = 0; (robotId < _maxRobots) && (i + robotId < _population.size()); ++robotId) {
-        individualsBatch.push_back(_population[i + robotId]);
+        individualsBatch.push_back(_population.at(i + robotId));
       }
-      i += _maxRobots;
 
       // Start the simulation
       if (simxStartSimulation(_clientID, simx_opmode_oneshot_wait) == -1) {
@@ -87,28 +97,43 @@ int		Simulation::run() {
       // Each robot processing an individual in parallel
       #pragma omp parallel for
       for (uint batchIter = 0; batchIter < individualsBatch.size(); ++batchIter) {
-        const auto &individual = individualsBatch[batchIter];
+        auto &individual = individualsBatch.at(batchIter);
         const auto &robot = _robots[omp_get_thread_num()];
+
+        simxFloat prevPos[3];
+        robot.getPosition(prevPos, _floorHandler);
+
+//        std::cout << "Start X: " << prevPos[0] << ", Y: " << prevPos[1] << std::endl;
+
         robot.doActions(individual.getDna());
+
+        simxFloat nextPos[3];
+        robot.getPosition(nextPos, _floorHandler);
+
+//        std::cout << "End X: " << nextPos[0] << ", Y: " << nextPos[1] << std::endl;
+
+        double fitness = individual.evaluate(prevPos, nextPos);
+//        std::cout << "Fitness computed: " << fitness << std::endl;
+        _population[i + batchIter].setScore(fitness);
       }
+
+      i += _maxRobots;
 
       // Stop the simulation
       if (simxStopSimulation(_clientID, simx_opmode_oneshot_wait) == -1) {
         throw "Fail to stop simulation";
       }
-      sleep(1);
     }
 
-    // Evaluate the population
-    averageFitness = _population.evaluateBatch();
+    _population.termDisplay();
 
     _population.sort();
 
     // Finding the worst of the current generation
-    worst = _population[_population.size() - 1];
+    worst = _population.at(_population.size() - 1);
 
     // Finding the best of the current generation
-    best = _population[0];
+    best = _population.at(0);
 
     logStats(best, worst, averageFitness);
     logPopulation(generationIter);
@@ -117,6 +142,7 @@ int		Simulation::run() {
     if (generationIter)
       worst = best;
 
+    // Selection for next generation
     // container for new generation
     Population newPopulationGeneration;
     #pragma omp parallel for shared(newPopulationGeneration)
@@ -126,6 +152,7 @@ int		Simulation::run() {
       newPopulationGeneration.addIndividual(child);
     }
    _population = newPopulationGeneration;
+   std::cout << "Selection done" << std::endl;
 
    // Mutation
     _population.mutateBatch();
@@ -147,8 +174,8 @@ void	Simulation::logPopulation(int index) {
 
   _logger.push<std::string>("Individual\tfitness", filePath);
   for (uint i = 0; i < _population.size(); i++) {
-    const Individual &individual = _population[i];
-    _logger.push(_population[i].getDna(), filePath, '\t');
+    const Individual &individual = _population.at(i);
+    _logger.push(individual.getDna(), filePath, '\t');
     _logger.push<double>(individual.getScore(), filePath);
   }
   _logger.log(filePath);
@@ -162,7 +189,7 @@ couple_t	Simulation::fitnessProportionalSelection() const {
   fitness_t	randomWeightIndex, weightsSum = 0;
 
   for (i = 0; i < _population.size(); i++)
-    weightsSum += _population[i].getScore();
+    weightsSum += _population.at(i).getScore();
   // repeating until we got two different individuals that can mate
   do {
     // get randomly a value corresponding to the weighted cursor
@@ -171,7 +198,7 @@ couple_t	Simulation::fitnessProportionalSelection() const {
     // searching for the individual aimed by the cursor
     // (when the random weighted cursor goes under or is equal to 0)
     for (i = 0; i < _population.size(); i++) {
-      const Individual &individual = _population[i];
+      const Individual &individual = _population.at(i);
       randomWeightIndex -= individual.getScore();
       if (randomWeightIndex <= 0) {
         if (leftMate.initialized())
@@ -209,7 +236,7 @@ couple_t		Simulation::tournamentSelection() const {
       i1 = ids[0];
     ids.clear();
   } while (i1 == i2 || i1 == -1 || i2 == -1);
-  return {_population[i1], _population[i2]};
+  return {_population.at(i1), _population.at(i2)};
 }
 
 /***** Crossovers *****/
