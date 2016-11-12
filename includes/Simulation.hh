@@ -35,7 +35,8 @@ private:
   couple_t makeCouple(fitness_t);
   void logPopulation(int index);
 
-  couple_t crossOverSinglePoint(const Individual&, const Individual &);
+  couple_t crossOverSinglePoint(const Individual &, const Individual &);
+  couple_t crossOverTwoPoint(const Individual &, const Individual &);
   couple_t crossOverUniform(const Individual &, const Individual &);
 
   typedef couple_t (Simulation::*func_ptr_t)(const Individual &, const Individual &);
