@@ -26,6 +26,7 @@ private:
   simxInt                 _clientID;
   robot_id_t              _id;
   movement_handler_list_t _movementHandlers;
+  simxInt                 _robotHandler;
 
 public:
   Robot(simxInt clientID, robot_id_t robotId);
@@ -33,6 +34,8 @@ public:
   inline robot_id_t getId() { return _id; }
 
   simxInt doActions(const dna_t &dna) const;
+
+  simxInt getPosition(simxFloat *position) const;
 
 private:
   struct Movement {

@@ -23,7 +23,7 @@ void  Population::initialize(uint16_t maxPop) {
 
   #pragma omp parallel for
   for (uint16_t i = 0; i < maxPop; i++) {
-    _population[i].initialize(rg.i_between(50, 200));
+    _population[i].initialize(rg.i_between(1, 20));
   }
 }
 

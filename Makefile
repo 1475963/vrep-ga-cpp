@@ -49,6 +49,7 @@ ifeq ($(OS), Linux)
 else
     CFLAGS += -D__linux
     CXXFLAGS += -D__APPLE__
+		CXX = clang-omp++
 endif
 
 ##

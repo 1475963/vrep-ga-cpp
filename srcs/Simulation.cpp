@@ -13,7 +13,7 @@ roundUp(int numToRound, int multiple) {
 }
 
 Simulation::Simulation() :
-  _maxRobots(omp_get_max_threads()),
+  _maxRobots(1/*omp_get_max_threads()*/),
   _maxPop(60), //_maxPop(roundUp(60, _maxRobots)),
   _maxGenerations(2) {
   // Connection to server
@@ -83,10 +83,20 @@ int Simulation::run() {
       // Each robot processing an individual in parallel
       #pragma omp parallel for
       for (uint batchIter = 0; batchIter < individualsBatch.size(); ++batchIter) {
-        const auto &individual = individualsBatch[batchIter];
+        auto &individual = individualsBatch[batchIter];
         const auto &robot = _robots[omp_get_thread_num()];
 
+        simxFloat prevPos[3];
+        robot.getPosition(prevPos);
+
         robot.doActions(individual.getDna());
+
+        simxFloat nextPos[3];
+        robot.getPosition(nextPos);
+
+        double fitness = individual.evaluate(prevPos, nextPos);
+
+        std::cout << "Fitness obtained: " << fitness << std::endl;
       }
 
       // Stop the simulation
@@ -95,9 +105,6 @@ int Simulation::run() {
       }
       sleep(1);
     }
-
-    // Evaluate the population
-    _population.evaluateBatch();
 
     // Finding the worst of the current generation
     worst = _population.getWorst();

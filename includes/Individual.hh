@@ -16,6 +16,7 @@ public:
   Individual	&operator=(const Individual &other);
   void		initialize(uint16_t length);
   fitness_t	evaluate();
+  fitness_t evaluate(simxFloat *prevPos, simxFloat *nextPos);
   void		mutate();
   void		termDisplay()			const;
   fitness_t	getScore()			const;
