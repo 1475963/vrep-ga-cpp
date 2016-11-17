@@ -90,6 +90,7 @@ int		Simulation::run() {
       }
 
       // Start the simulation
+      std::cout << "Simulation running." << std::flush;
       if (simxStartSimulation(_clientID, simx_opmode_oneshot_wait) == -1) {
         throw "Failed to start simulation";
       }
@@ -123,6 +124,8 @@ int		Simulation::run() {
       if (simxStopSimulation(_clientID, simx_opmode_oneshot_wait) == -1) {
         throw "Fail to stop simulation";
       }
+      std::cout << " Done." << std::endl;
+      sleep(1);
     }
 
     _population.termDisplay();
